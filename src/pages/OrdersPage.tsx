@@ -138,7 +138,7 @@ const OrdersPage = () => {
   };
 
   const handleUnpaidClick = () => {
-    setDateRange(undefined);
+    setDateRange({ start: '', end: '' });
     setShowUnpaid(true);
   };
 
