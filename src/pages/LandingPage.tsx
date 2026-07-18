@@ -332,10 +332,17 @@ export default function GangaPhotoLanding() {
       <section id="testimonial" style={{ background: colors.panel, borderTop: "1px solid #1f2b2d", borderBottom: "1px solid #1f2b2d" }}>
         <div className="max-w-3xl mx-auto px-6 py-20 text-center">
           <p style={{ color: colors.gold, fontFamily: "Georgia, serif" }} className="text-6xl mb-2 opacity-60">&ldquo;</p>
-          <p style={{ fontFamily: "Georgia, serif" }} className="text-xl md:text-2xl leading-relaxed mb-6">
-            We stopped juggling notebooks and WhatsApp chats. Now every order, edit and rupee lives in one place.
+          <p style={{ fontFamily: "Georgia, serif" }} className="text-xl md:text-2xl leading-relaxed mb-6 flex flex-col gap-2">
+            <span>Turning emotions into everlasting frames since 48 years</span>
+            <span className="text-lg opacity-80" style={{ fontStyle: "italic" }}>
+              &quot;Candid. Classic. Creative.<br/>
+              Wedding &bull; Portrait &bull; Legacy Studio&quot;
+            </span>
           </p>
-          <p style={{ color: colors.muted, letterSpacing: "0.1em" }} className="text-xs">STUDIO OWNER · Ganga Photo</p>
+          <p style={{ color: colors.muted, letterSpacing: "0.1em" }} className="text-xs flex items-center justify-center gap-2">
+            <span style={{ color: "#3b82f6" }}>🔷</span> 
+            <span>Trusted by Generations &middot; STUDIO OWNER &middot; Ganga Photo</span>
+          </p>
         </div>
       </section>
 
