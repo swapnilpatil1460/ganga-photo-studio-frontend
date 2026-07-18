@@ -58,7 +58,7 @@ const Dashboard = () => {
         <nav className="sidebar-nav">
           <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" path="/dashboard" />
           <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" path="/dashboard/orders" />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Schedule" path="/dashboard/schedule" />
+          <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" />
           <SidebarItem icon={<Users size={20} />} label="Customers" path="/dashboard/customers" />
           
           {role === 'owner' && (
