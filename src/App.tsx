@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
@@ -17,6 +17,8 @@ import ReportsPage from './pages/ReportsPage';
 import BackupPage from './pages/BackupPage';
 import SettingsPage from './pages/SettingsPage';
 import SchedulePage from './pages/SchedulePage';
+import PricingPage from './pages/PricingPage';
+import BillingPage from './pages/BillingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -47,6 +49,8 @@ function App() {
             <Route path="employees" element={<EmployeesPage />} />
             <Route path="employees/:id" element={<EmployeeDetails />} />
             <Route path="users" element={<UsersPage />} />
+            <Route path="pricing" element={<PricingPage />} />
+            <Route path="billing" element={<BillingPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="backup" element={<BackupPage />} />
             <Route path="settings" element={<SettingsPage />} />
