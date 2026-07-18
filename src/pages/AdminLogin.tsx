@@ -6,7 +6,6 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isSignIn, setIsSignIn] = useState(true);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,25 +58,6 @@ const AdminLogin = () => {
       {/* Login Card */}
       <div className="w-full max-w-[400px] p-6 rounded-2xl border" style={{ background: '#121c1e', borderColor: '#1f2b2d' }}>
         
-        {/* Toggle Switch */}
-        <div className="flex rounded-full p-1 mb-8" style={{ background: '#0a1011' }}>
-          <button 
-            type="button"
-            className="flex-1 py-2 text-sm font-medium rounded-full transition-colors"
-            style={isSignIn ? { background: '#d5b274', color: '#000' } : { color: '#9ca3af' }}
-            onClick={() => setIsSignIn(true)}
-          >
-            Sign In
-          </button>
-          <button 
-            type="button"
-            className="flex-1 py-2 text-sm font-medium rounded-full transition-colors"
-            style={!isSignIn ? { background: '#d5b274', color: '#000' } : { color: '#9ca3af' }}
-            onClick={() => setIsSignIn(false)}
-          >
-            Create Account
-          </button>
-        </div>
 
         {error && (
           <div className="mb-4 p-3 rounded-lg text-sm text-center" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
