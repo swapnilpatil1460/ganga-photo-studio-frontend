@@ -61,15 +61,16 @@ const Dashboard = () => {
           <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" />
           <SidebarItem icon={<Users size={20} />} label="Customers" path="/dashboard/customers" />
           
+          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
+          
           {role === 'owner' && (
             <>
-              <SidebarItem icon={<UserSquare2 size={20} />} label="Employees" path="/dashboard/employees" />
-              <SidebarItem icon={<Users size={20} />} label="System Users" path="/dashboard/users" />
               <SidebarItem icon={<DollarSign size={20} />} label="Pricing" path="/dashboard/pricing" />
               <SidebarItem icon={<FileText size={20} />} label="Billing" path="/dashboard/billing" />
               <SidebarItem icon={<FileText size={20} />} label="Reports" path="/dashboard/reports" />
+              <SidebarItem icon={<UserSquare2 size={20} />} label="Employees" path="/dashboard/employees" />
+              <SidebarItem icon={<Users size={20} />} label="System Users" path="/dashboard/users" />
               <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" />
-              <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
             </>
           )}
         </nav>

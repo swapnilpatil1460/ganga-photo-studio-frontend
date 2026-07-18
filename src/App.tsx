@@ -53,15 +53,16 @@ function App() {
           <Route path="customers/new" element={<CustomerForm />} />
           <Route path="customers/:id" element={<CustomerDetails />} />
           <Route path="customers/:id/edit" element={<CustomerForm />} />
+          <Route path="backup" element={<BackupPage />} />
+          
           {/* Restricted Owner Routes */}
           <Route element={<OwnerLayout />}>
-            <Route path="employees" element={<EmployeesPage />} />
-            <Route path="employees/:id" element={<EmployeeDetails />} />
-            <Route path="users" element={<UsersPage />} />
             <Route path="pricing" element={<PricingPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="reports" element={<ReportsPage />} />
-            <Route path="backup" element={<BackupPage />} />
+            <Route path="employees" element={<EmployeesPage />} />
+            <Route path="employees/:id" element={<EmployeeDetails />} />
+            <Route path="users" element={<UsersPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
           <Route path="invoices/:orderId" element={<InvoicePage />} />
