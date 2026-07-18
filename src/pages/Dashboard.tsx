@@ -12,10 +12,12 @@ import {
   LogOut,
   Camera,
   Database,
-  CalendarDays
+  CalendarDays,
+  Menu,
+  X
 } from 'lucide-react';
 
-const SidebarItem = ({ icon, label, path }: { icon: React.ReactNode, label: string, path: string }) => {
+const SidebarItem = ({ icon, label, path, onClick }: { icon: React.ReactNode, label: string, path: string, onClick?: () => void }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const active = location.pathname === path;
@@ -23,7 +25,10 @@ const SidebarItem = ({ icon, label, path }: { icon: React.ReactNode, label: stri
   return (
     <div 
       className={`sidebar-item ${active ? 'active' : ''}`}
-      onClick={() => navigate(path)}
+      onClick={() => {
+        navigate(path);
+        if (onClick) onClick();
+      }}
     >
       {icon}
       <span>{label}</span>
@@ -34,6 +39,7 @@ const SidebarItem = ({ icon, label, path }: { icon: React.ReactNode, label: stri
 
 const Dashboard = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('themePreference') || 'theme-dashboard');
   const navigate = useNavigate();
   const role = localStorage.getItem('role') || 'employee';
@@ -46,8 +52,13 @@ const Dashboard = () => {
 
   return (
     <div className={`dashboard-layout ${theme}`}>
+      {/* Sidebar Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>
+      )}
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="overflow-hidden flex items-center justify-center p-0 rounded-full border border-[#c9a15a]">
             <img src="/logo.jpg" alt="Logo" className="w-14 h-14 object-cover" />
@@ -93,26 +104,35 @@ const Dashboard = () => {
       <main className="dashboard-main">
         {/* Topnav */}
         <header className="dashboard-topnav">
-          {/* Left: Search */}
-          <div className="topnav-search">
-            <Search size={18} className="icon-search" />
-            <input 
-              type="text" 
-              placeholder="Search here..." 
-              className="input-search"
-            />
+          {/* Left: Search & Menu */}
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <button 
+              className="md:hidden icon-btn"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <Menu size={24} />
+            </button>
+            <div className="topnav-search hidden sm:flex">
+              <Search size={18} className="icon-search" />
+              <input 
+                type="text" 
+                placeholder="Search here..." 
+                className="input-search"
+              />
+            </div>
           </div>
 
           {/* Right: Icons & Profile */}
-          <div className="topnav-right">
-            <div className="topnav-icons">
+          <div className="topnav-right ml-auto">
+            <div className="topnav-icons hidden md:flex">
               <div className="icon-btn">
                 <Languages size={20} />
                 <ChevronDown size={14} style={{marginLeft: '2px'}} />
               </div>
               <div className="icon-btn"><Moon size={20} /></div>
               <div className="icon-btn"><Calendar size={20} /></div>
-              
+            </div>
+            <div className="topnav-icons flex">
               <div className="icon-btn has-badge">
                 <MessageSquare size={20} />
                 <span className="badge-bubble">5</span>

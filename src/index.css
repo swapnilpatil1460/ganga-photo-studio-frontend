@@ -591,7 +591,8 @@
     background-color: var(--theme-bg-card);
     border-radius: 0.75rem;
     border: 1px solid var(--theme-border);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.03);
     margin-bottom: 2rem;
   }
@@ -1132,13 +1133,37 @@
 .sidebar {
   width: 250px;
   background-color: var(--theme-bg-card);
-  border-right: 1px solid var(--theme-bg-card);
+  border-right: 1px solid var(--theme-border);
   display: flex;
   flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 40;
 }
 
 @media (min-width: 768px) {
-  .sidebar { display: flex; }
+  .sidebar { 
+    position: static;
+    transform: translateX(0); 
+  }
+  .sidebar-overlay {
+    display: none;
+  }
 }
 
 .sidebar-header {
