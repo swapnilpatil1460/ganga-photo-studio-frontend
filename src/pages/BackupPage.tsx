@@ -116,6 +116,41 @@ const BackupPage = () => {
     }
   };
 
+  const handleBackupSchedule = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Failed to fetch schedule");
+      const schedule = await res.json();
+      
+      const headers = ["Event Title", "Event Type", "Date", "Start Time", "End Time", "Location", "Customer Name", "Customer Phone", "Assigned To", "Notes"];
+      
+      const rows = schedule.map((e: any) => [
+        `"${e.title}"`,
+        e.type,
+        e.date,
+        e.startTime,
+        e.endTime,
+        `"${e.location || 'N/A'}"`,
+        `"${e.customerName || 'N/A'}"`,
+        e.customerNumber || 'N/A',
+        `"${e.assignedTo || 'Unassigned'}"`,
+        `"${(e.notes || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = [headers.join(","), ...rows.map((row: any[]) => row.join(","))].join("\n");
+      downloadCSV(csvContent, `Shoot_Schedule_Backup_${new Date().toISOString().split('T')[0]}.csv`);
+
+    } catch (err) {
+      console.error(err);
+      alert("Error generating schedule backup.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="page-container max-w-7xl mx-auto h-full overflow-y-auto custom-scrollbar pb-12 pr-2">
       <div className="page-header flex justify-between items-center mb-8">
@@ -125,7 +160,7 @@ const BackupPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Customer Backup Card */}
         <div className="profile-card flex flex-col gap-6">
@@ -209,7 +244,34 @@ const BackupPage = () => {
             disabled={loading || role !== 'owner'}
             className="w-full mt-auto py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-[var(--theme-border)] disabled:text-[var(--theme-text-muted)] text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
-            <Download size={18} /> {role === 'owner' ? "Export Employee Records to CSV" : "Owner Privilege Required"}
+            <Download size={18} /> {role === 'owner' ? "Export Employees" : "Owner Privilege Required"}
+          </button>
+        </div>
+
+        {/* Schedule Backup Card */}
+        <div className="profile-card flex flex-col gap-6">
+          <div className="flex items-center gap-3 border-b border-[var(--theme-border)] pb-4">
+            <div className="p-3 bg-green-500/10 rounded-lg text-green-400">
+              <Calendar size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-[var(--theme-text)] text-lg">Shoot Schedule</h3>
+              <p className="text-[var(--theme-text-muted)] text-sm">Export all upcoming and past shoot events.</p>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
+             <Calendar size={48} className="text-gray-600 mb-4 opacity-50" />
+             <p className="text-[var(--theme-text)] font-medium">Full Schedule Backup</p>
+             <p className="text-[var(--theme-text-muted)] text-sm mt-2 max-w-xs">Generate an export of all scheduled events including assignments and locations.</p>
+          </div>
+          
+          <button 
+            onClick={handleBackupSchedule}
+            disabled={loading}
+            className="w-full mt-auto py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:cursor-not-allowed"
+          >
+            <Download size={18} /> Export Shoot Schedule
           </button>
         </div>
 
