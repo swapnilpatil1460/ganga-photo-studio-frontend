@@ -69,9 +69,9 @@ const Dashboard = () => {
               <SidebarItem icon={<FileText size={20} />} label="Billing" path="/dashboard/billing" />
               <SidebarItem icon={<FileText size={20} />} label="Reports" path="/dashboard/reports" />
               <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" />
+              <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
             </>
           )}
-          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
         </nav>
 
         <div className="sidebar-footer">

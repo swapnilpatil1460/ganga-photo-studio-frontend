@@ -42,12 +42,15 @@ function App() {
           <Route path="customers/new" element={<CustomerForm />} />
           <Route path="customers/:id" element={<CustomerDetails />} />
           <Route path="customers/:id/edit" element={<CustomerForm />} />
-          <Route path="employees" element={<EmployeesPage />} />
-          <Route path="employees/:id" element={<EmployeeDetails />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="reports" element={<ReportsPage />} />
-          <Route path="backup" element={<BackupPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+          {/* Restricted Owner Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['owner']}><Outlet /></ProtectedRoute>}>
+            <Route path="employees" element={<EmployeesPage />} />
+            <Route path="employees/:id" element={<EmployeeDetails />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="reports" element={<ReportsPage />} />
+            <Route path="backup" element={<BackupPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
           <Route path="invoices/:orderId" element={<InvoicePage />} />
         </Route>
       </Routes>
