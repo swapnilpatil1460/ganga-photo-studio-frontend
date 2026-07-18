@@ -162,10 +162,8 @@ const PHOTO_DAD = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBw
 export default function GangaPhotoLanding() {
   const photos = [
     "/1000306529.jpg",
-    "/1000306530 (1).jpg",
     "/1000306530.jpg",
     "/1000306531.jpg",
-    "/1000306532.jpg",
     "/1000306533.jpg",
     "/1000306534.jpg",
     "/owner.jpg"
@@ -383,6 +381,7 @@ export default function GangaPhotoLanding() {
               <li><a href="#" className="hover:text-white">About</a></li>
               <li><a href="#" className="hover:text-white">Careers</a></li>
               <li><a href="#contact" className="hover:text-white">Contact</a></li>
+              <li className="pt-2"><a href="https://wa.me/919860920571" target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-2"><MessageCircle size={14} /> 98609 20571</a></li>
             </ul>
           </div>
 
@@ -399,11 +398,18 @@ export default function GangaPhotoLanding() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t" style={{ borderColor: "#1f2b2d" }}>
           <p style={{ color: colors.mutedDark }} className="text-xs">© 2026 Ganga Photo. All rights reserved.</p>
           <div className="flex gap-3">
-            {[Instagram, Facebook, Youtube].map((Icon, i) => (
-              <span key={i} className="w-9 h-9 rounded-full flex items-center justify-center border" style={{ borderColor: colors.mutedDark }}>
-                <Icon size={15} color={colors.mutedDark} />
-              </span>
-            ))}
+            <a href="https://www.instagram.com/gangaphotos?igsh=YXZ0NHJpN282aGpq" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-white/5 transition-colors" style={{ borderColor: colors.mutedDark }}>
+              <Instagram size={15} color={colors.mutedDark} />
+            </a>
+            <a href="https://wa.me/919860920571" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-white/5 transition-colors" style={{ borderColor: colors.mutedDark }}>
+              <MessageCircle size={15} color={colors.mutedDark} />
+            </a>
+            <a href="#" className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-white/5 transition-colors" style={{ borderColor: colors.mutedDark }}>
+              <Facebook size={15} color={colors.mutedDark} />
+            </a>
+            <a href="#" className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-white/5 transition-colors" style={{ borderColor: colors.mutedDark }}>
+              <Youtube size={15} color={colors.mutedDark} />
+            </a>
           </div>
         </div>
       </footer>
