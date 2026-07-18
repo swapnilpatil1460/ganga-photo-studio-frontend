@@ -1,4 +1,4 @@
-
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useOutletContext } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/AdminLogin';
@@ -68,6 +68,7 @@ function App() {
           <Route path="invoices/:orderId" element={<InvoicePage />} />
         </Route>
       </Routes>
+      <Analytics />
     </Router>
   );
 }
