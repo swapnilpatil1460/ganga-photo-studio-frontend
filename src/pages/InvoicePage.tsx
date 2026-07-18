@@ -78,7 +78,7 @@ const InvoicePage = () => {
   useEffect(() => {
     if (order) {
       const originalTitle = document.title;
-      const dateStr = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+      const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
       const customerName = order.customer?.name ? order.customer.name.replace(/\s+/g, '_') : 'Customer';
       document.title = `${customerName}_${dateStr}`;
       
@@ -95,7 +95,7 @@ const InvoicePage = () => {
     const element = document.getElementById('invoice-content');
     if (!element) return;
     
-    const dateStr = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const customerName = order.customer?.name ? order.customer.name.replace(/\s+/g, '_') : 'Customer';
     const filename = `${customerName}_${dateStr}.pdf`;
 

@@ -20,6 +20,7 @@ const CustomerForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [generatedCredentials, setGeneratedCredentials] = useState<{email: string, password: string} | null>(null);
 
   useEffect(() => {
     if (isEdit) {
@@ -78,6 +79,9 @@ const CustomerForm = () => {
       const data = await res.json();
 
       if (res.ok) {
+        if (!isEdit && data.credentials) {
+          setGeneratedCredentials(data.credentials);
+        }
         setShowSuccessModal(true);
       } else {
         setError(data.message || 'Error saving customer.');
@@ -210,6 +214,24 @@ const CustomerForm = () => {
               <p className="text-sm text-[var(--theme-text-muted)]">
                 The customer details have been successfully saved to the system.
               </p>
+              
+              {generatedCredentials && (
+                <div className="w-full mt-4 p-4 bg-black/40 rounded-lg border border-gray-700 text-left">
+                  <p className="text-xs text-yellow-500 font-bold mb-2 uppercase tracking-wider">Generated System Credentials</p>
+                  <p className="text-sm text-gray-300 mb-1">Please share these with the customer if they need portal access.</p>
+                  <div className="bg-black/60 p-3 rounded mt-3 font-mono text-sm space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Email:</span>
+                      <span className="text-white font-medium select-all">{generatedCredentials.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Password:</span>
+                      <span className="text-white font-medium select-all">{generatedCredentials.password}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
             </div>
             <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-center">
               <button 
