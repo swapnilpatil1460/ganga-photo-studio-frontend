@@ -166,7 +166,6 @@ export default function GangaPhotoLanding() {
     "/1000306531.jpg",
     "/1000306533.jpg",
     "/1000306534.jpg",
-    "/owner.jpg",
     "/baby.jpg",
     "/bhumi.jpg"
   ];
