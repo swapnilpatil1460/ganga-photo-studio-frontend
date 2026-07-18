@@ -21,6 +21,8 @@ import PricingPage from './pages/PricingPage';
 import BillingPage from './pages/BillingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import AnalyticsTracker from './components/AnalyticsTracker';
+
 const OwnerLayout = () => {
   const context = useOutletContext();
   return (
@@ -33,6 +35,7 @@ const OwnerLayout = () => {
 function App() {
   return (
     <Router>
+      <AnalyticsTracker />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/admin/login" element={<AdminLogin />} />
