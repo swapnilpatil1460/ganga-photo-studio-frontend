@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, useOutletContext } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
@@ -20,6 +20,15 @@ import SchedulePage from './pages/SchedulePage';
 import PricingPage from './pages/PricingPage';
 import BillingPage from './pages/BillingPage';
 import ProtectedRoute from './components/ProtectedRoute';
+
+const OwnerLayout = () => {
+  const context = useOutletContext();
+  return (
+    <ProtectedRoute allowedRoles={['owner']}>
+      <Outlet context={context} />
+    </ProtectedRoute>
+  );
+};
 
 function App() {
   return (
@@ -45,7 +54,7 @@ function App() {
           <Route path="customers/:id" element={<CustomerDetails />} />
           <Route path="customers/:id/edit" element={<CustomerForm />} />
           {/* Restricted Owner Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['owner']}><Outlet /></ProtectedRoute>}>
+          <Route element={<OwnerLayout />}>
             <Route path="employees" element={<EmployeesPage />} />
             <Route path="employees/:id" element={<EmployeeDetails />} />
             <Route path="users" element={<UsersPage />} />
