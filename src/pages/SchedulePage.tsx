@@ -51,7 +51,7 @@ export default function SchedulePage() {
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/schedule', {
+      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -112,7 +112,7 @@ export default function SchedulePage() {
     
     try {
       const token = localStorage.getItem('token');
-      const url = mode === 'add' ? 'http://localhost:5000/api/schedule' : `http://localhost:5000/api/schedule/${form.id}`;
+      const url = mode === 'add' ? (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule' : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule/${form.id}`;
       const method = mode === 'add' ? 'POST' : 'PUT';
       
       const res = await fetch(url, {
@@ -141,7 +141,7 @@ export default function SchedulePage() {
   async function deleteEvent() { 
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/schedule/${modal.form.id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule/${modal.form.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

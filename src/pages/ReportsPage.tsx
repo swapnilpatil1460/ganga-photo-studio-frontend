@@ -16,7 +16,7 @@ const ReportsPage = () => {
     try {
       const token = localStorage.getItem('token');
       // Pass start and end date to backend
-      const res = await fetch(`http://localhost:5000/api/orders?startDate=${dateRange.start}&endDate=${dateRange.end}T23:59:59.999Z`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?startDate=${dateRange.start}&endDate=${dateRange.end}T23:59:59.999Z`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {

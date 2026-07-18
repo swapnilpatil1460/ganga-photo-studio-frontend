@@ -32,7 +32,7 @@ const Customers = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      let url = `http://localhost:5000/api/customers?page=${page}&limit=${limit}`;
+      let url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers?page=${page}&limit=${limit}`;
       
       if (search) {
         // Simple heuristic: if it looks like a number, search by phone, else by name
@@ -74,7 +74,7 @@ const Customers = () => {
     if (!confirm('Are you sure you want to delete this customer?')) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:5000/api/customers/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

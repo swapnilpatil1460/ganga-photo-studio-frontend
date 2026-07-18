@@ -44,9 +44,9 @@ export default function EmployeeDetails() {
         const headers = { 'Authorization': `Bearer ${token}` };
         
         const [empRes, actRes, dashRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/employees/${id}`, { headers }),
-          fetch(`http://localhost:5000/api/employees/${id}/activities`, { headers }),
-          fetch(`http://localhost:5000/api/employees/${id}/dashboard`, { headers })
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees/${id}`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees/${id}/activities`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees/${id}/dashboard`, { headers })
         ]);
 
         if (empRes.ok) setEmployee(await empRes.json());

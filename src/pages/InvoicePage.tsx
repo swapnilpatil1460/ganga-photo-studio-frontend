@@ -42,14 +42,14 @@ const InvoicePage = () => {
     const fetchOrder = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${orderId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
           // Mock data handling for customer if not populated
           if (!data.customer || typeof data.customer === 'string') {
-            const cRes = await fetch(`http://localhost:5000/api/customers/${data.customer}`, {
+            const cRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${data.customer}`, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
             if (cRes.ok) {

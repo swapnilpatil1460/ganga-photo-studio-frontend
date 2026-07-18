@@ -34,7 +34,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
       // Since backend doesn't have a direct /customers/:id/orders route,
       // we can fetch all orders and filter, or just use the global search if supported.
       // We will just fetch all and filter in frontend for this demo if backend doesn't support customer filter.
-      const res = await fetch('http://localhost:5000/api/orders', {
+      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -46,7 +46,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
         setOrders(custOrders);
       }
       
-      const empRes = await fetch('http://localhost:5000/api/employees', {
+      const empRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (empRes.ok) setEmployeesList(await empRes.json());
@@ -67,7 +67,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     setSavingOrder(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/orders', {
+      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -26,7 +26,7 @@ const BackupPage = () => {
   const handleBackupCustomers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Failed to fetch data");
@@ -87,7 +87,7 @@ const BackupPage = () => {
     
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/employees`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Failed to fetch employees");

@@ -26,7 +26,7 @@ const CustomerForm = () => {
       const fetchCustomer = async () => {
         try {
           const token = localStorage.getItem('token');
-          const res = await fetch(`http://localhost:5000/api/customers/${id}`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {
@@ -63,7 +63,7 @@ const CustomerForm = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const url = isEdit ? `http://localhost:5000/api/customers/${id}` : 'http://localhost:5000/api/customers';
+      const url = isEdit ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}` : (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/customers';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {

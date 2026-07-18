@@ -20,8 +20,8 @@ const OrderDetails = () => {
     try {
       const token = localStorage.getItem('token');
       const [orderRes, empRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:5000/api/employees', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       if (orderRes.ok) {
@@ -49,7 +49,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/orders/${id}/status`, {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/orders/${id}/assign`, {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/assign`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/orders/${id}/payment`, {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/payment`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

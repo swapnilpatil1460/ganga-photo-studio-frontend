@@ -55,9 +55,9 @@ const OrdersPage = () => {
       if (dateRange.end) params.append('endDate', dateRange.end);
 
       const [ordersRes, analyticsRes, empRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/orders?${params.toString()}`, { headers }),
-        fetch('http://localhost:5000/api/orders/analytics', { headers }),
-        fetch('http://localhost:5000/api/employees', { headers })
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?${params.toString()}`, { headers }),
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders/analytics', { headers }),
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', { headers })
       ]);
 
       if (ordersRes.ok) setOrders(await ordersRes.json());

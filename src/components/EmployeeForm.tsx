@@ -82,7 +82,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
     setLoading(true);
     
     try {
-      const url = employee ? `http://localhost:5000/api/employees/${employee._id}` : 'http://localhost:5000/api/employees';
+      const url = employee ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees/${employee._id}` : (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees';
       const method = employee ? 'PUT' : 'POST';
       
       const payload: any = { ...formData };
