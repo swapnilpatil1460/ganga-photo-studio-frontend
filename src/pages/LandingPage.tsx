@@ -191,9 +191,7 @@ export default function GangaPhotoLanding() {
         </nav>
         <div className="flex items-center gap-4">
           <a href="/admin/login">
-            <button className="px-5 py-2.5 text-sm font-medium rounded-md transition-colors" style={{ background: colors.panel, color: colors.cream, border: `1px solid ${colors.gold}40` }}>
-              Admin Login
-            </button>
+            <PrimaryButton className="!px-5 !py-2.5 text-sm">Admin Login</PrimaryButton>
           </a>
           <PrimaryButton className="!px-5 !py-2.5 text-sm">Book a Demo</PrimaryButton>
         </div>
