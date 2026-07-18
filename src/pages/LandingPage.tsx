@@ -167,7 +167,8 @@ export default function GangaPhotoLanding() {
     "/1000306533.jpg",
     "/1000306534.jpg",
     "/baby.jpg",
-    "/bhumi.jpg"
+    "/bhumi.jpg",
+    "/wed.jpg"
   ];
   const [active, setActive] = useState(0);
 
