@@ -58,10 +58,8 @@ const Dashboard = () => {
         <nav className="sidebar-nav">
           <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" path="/dashboard" />
           <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" path="/dashboard/orders" />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" />
           <SidebarItem icon={<Users size={20} />} label="Customers" path="/dashboard/customers" />
-          
-          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
+          <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" />
           
           {role === 'owner' && (
             <>
@@ -70,8 +68,13 @@ const Dashboard = () => {
               <SidebarItem icon={<FileText size={20} />} label="Reports" path="/dashboard/reports" />
               <SidebarItem icon={<UserSquare2 size={20} />} label="Employees" path="/dashboard/employees" />
               <SidebarItem icon={<Users size={20} />} label="System Users" path="/dashboard/users" />
-              <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" />
             </>
+          )}
+
+          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" />
+
+          {role === 'owner' && (
+            <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" />
           )}
         </nav>
 
