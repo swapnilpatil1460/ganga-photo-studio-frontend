@@ -21,7 +21,7 @@ const OrderDetails = () => {
       const token = localStorage.getItem('token');
       const [orderRes, empRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       if (orderRes.ok) {
@@ -31,7 +31,8 @@ const OrderDetails = () => {
         setSelectedEmployee(data.assignedEmployee || '');
       }
       if (empRes.ok) {
-        setEmployeesList(await empRes.json());
+        const result = await empRes.json();
+        setEmployeesList(result.data || result);
       }
     } catch (err) {
       console.error('Error fetching order', err);
