@@ -21,7 +21,7 @@ const OrderDetails = () => {
       const token = localStorage.getItem('token');
       const [orderRes, empRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
       ]);
       
       if (orderRes.ok) {

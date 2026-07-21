@@ -57,7 +57,7 @@ const OrdersPage = () => {
       const [ordersRes, analyticsRes, empRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?${params.toString()}`, { headers }),
         fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders/analytics', { headers }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', { headers })
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
       ]);
 
       if (ordersRes.ok) {
