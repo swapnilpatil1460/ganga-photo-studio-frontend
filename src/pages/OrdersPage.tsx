@@ -60,7 +60,10 @@ const OrdersPage = () => {
         fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', { headers })
       ]);
 
-      if (ordersRes.ok) setOrders(await ordersRes.json());
+      if (ordersRes.ok) {
+        const result = await ordersRes.json();
+        setOrders(result.data || result);
+      }
       if (analyticsRes.ok) setAnalytics(await analyticsRes.json());
       if (empRes.ok) {
         const result = await empRes.json();

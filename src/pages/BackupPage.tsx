@@ -26,11 +26,12 @@ const BackupPage = () => {
   const handleBackupCustomers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z&limit=10000`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Failed to fetch data");
-      const orders = await res.json();
+      const result = await res.json();
+      const orders = result.data || result;
       
       if (orders.length === 0) {
         alert("No records found for this date range.");
@@ -87,11 +88,12 @@ const BackupPage = () => {
     
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees?limit=10000`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Failed to fetch employees");
-      const employees = await res.json();
+      const result = await res.json();
+      const employees = result.data || result;
       
       const headers = ["Employee ID", "Name", "Phone", "Email", "Role", "Status", "Date Joined"];
       
