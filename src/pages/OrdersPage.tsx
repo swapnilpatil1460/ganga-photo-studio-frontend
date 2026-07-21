@@ -57,12 +57,15 @@ const OrdersPage = () => {
       const [ordersRes, analyticsRes, empRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?${params.toString()}`, { headers }),
         fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders/analytics', { headers }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', { headers })
+        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', { headers })
       ]);
 
       if (ordersRes.ok) setOrders(await ordersRes.json());
       if (analyticsRes.ok) setAnalytics(await analyticsRes.json());
-      if (empRes.ok) setEmployeesList(await empRes.json());
+      if (empRes.ok) {
+        const result = await empRes.json();
+        setEmployeesList(result.data || result);
+      }
     } catch (err) {
       console.error('Error fetching orders data', err);
     } finally {

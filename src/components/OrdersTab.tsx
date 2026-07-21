@@ -46,10 +46,13 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
         setOrders(custOrders);
       }
       
-      const empRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', {
+      const empRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees?limit=100', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (empRes.ok) setEmployeesList(await empRes.json());
+      if (empRes.ok) {
+        const result = await empRes.json();
+        setEmployeesList(result.data || result);
+      }
       
     } catch (err) {
       console.error(err);
