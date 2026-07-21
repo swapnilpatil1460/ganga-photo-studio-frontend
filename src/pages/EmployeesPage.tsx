@@ -32,7 +32,15 @@ const EmployeesPage = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        setEmployees(await res.json());
+        const result = await res.json();
+        // Handle both older array responses and newer paginated {data, pagination} objects
+        if (Array.isArray(result)) {
+          setEmployees(result);
+        } else if (result.data) {
+          setEmployees(result.data);
+        } else {
+          setEmployees([]);
+        }
       }
     } catch (err) {
       console.error('Error fetching employees', err);
