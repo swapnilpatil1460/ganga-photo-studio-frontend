@@ -28,37 +28,43 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
   });
 
   const fetchOrders = async () => {
+    const token = localStorage.getItem('token');
+    
+    // Fetch orders and employees independently so one failure doesn't block the other
     try {
-      const token = localStorage.getItem('token');
-      // Fetch orders for this specific customer
-      // Since backend doesn't have a direct /customers/:id/orders route,
-      // we can fetch all orders and filter, or just use the global search if supported.
-      // We will just fetch all and filter in frontend for this demo if backend doesn't support customer filter.
       const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
-        // Filter by customerId
-        const custOrders = data.filter((o: any) => 
+        const result = await res.json();
+        // Handle both paginated { data: [] } and plain array responses
+        const allOrders = Array.isArray(result) ? result : (result.data || []);
+        const custOrders = allOrders.filter((o: any) => 
           (typeof o.customer === 'string' ? o.customer === customerId : o.customer?._id === customerId)
         );
         setOrders(custOrders);
       }
-      
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    }
+
+    try {
       const empRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
       });
       if (empRes.ok) {
         const result = await empRes.json();
-        setEmployeesList(result.data || result);
+        const emps = Array.isArray(result) ? result : (result.data || []);
+        setEmployeesList(emps);
+        console.log('Employees loaded:', emps.length, emps.map((e: any) => e.name));
+      } else {
+        console.error('Employee fetch failed with status:', empRes.status);
       }
-      
     } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching employees:', err);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -270,7 +276,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Assign Employee (Loaded: {employeesList.length})</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Assign Employee</label>
                   <select 
                     className="search-input w-full appearance-none"
                     value={orderForm.assignedEmployee}
