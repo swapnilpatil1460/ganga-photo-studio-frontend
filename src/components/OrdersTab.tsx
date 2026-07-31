@@ -270,7 +270,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Assign Employee</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Assign Employee (Loaded: {employeesList.length})</label>
                   <select 
                     className="search-input w-full appearance-none"
                     value={orderForm.assignedEmployee}
