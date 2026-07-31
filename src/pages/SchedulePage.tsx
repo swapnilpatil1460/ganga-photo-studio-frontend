@@ -51,14 +51,17 @@ export default function SchedulePage() {
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule', {
+      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule?limit=500', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        setEvents(await res.json());
+        const result = await res.json();
+        // Handle both paginated { data: [] } and plain array responses
+        const evts = Array.isArray(result) ? result : (result.data || []);
+        setEvents(evts);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching schedule:', err);
     }
   };
 

@@ -20,8 +20,9 @@ const ReportsPage = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
-        setOrders(data);
+        const result = await res.json();
+        const ordersArr = Array.isArray(result) ? result : (result.data || []);
+        setOrders(ordersArr);
       }
     } catch (err) {
       console.error('Error fetching report data', err);

@@ -121,11 +121,12 @@ const BackupPage = () => {
   const handleBackupSchedule = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule?limit=10000`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error("Failed to fetch schedule");
-      const schedule = await res.json();
+      const scheduleResult = await res.json();
+      const schedule = Array.isArray(scheduleResult) ? scheduleResult : (scheduleResult.data || []);
       
       const headers = ["Event Title", "Event Type", "Date", "Start Time", "End Time", "Location", "Customer Name", "Customer Phone", "Assigned To", "Notes"];
       
