@@ -32,16 +32,13 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     
     // Fetch orders and employees independently so one failure doesn't block the other
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders', {
+      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/orders/customer/${customerId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         const result = await res.json();
-        // Handle both paginated { data: [] } and plain array responses
-        const allOrders = Array.isArray(result) ? result : (result.data || []);
-        const custOrders = allOrders.filter((o: any) => 
-          (typeof o.customer === 'string' ? o.customer === customerId : o.customer?._id === customerId)
-        );
+        // The customer endpoint returns a plain array
+        const custOrders = Array.isArray(result) ? result : (result.data || []);
         setOrders(custOrders);
       }
     } catch (err) {

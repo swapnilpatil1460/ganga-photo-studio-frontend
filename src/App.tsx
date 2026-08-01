@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet, useOutletContext } from
 
 import ProtectedRoute from './components/ProtectedRoute';
 import AnalyticsTracker from './components/AnalyticsTracker';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -47,43 +48,45 @@ function App() {
   return (
     <Router>
       <AnalyticsTracker />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardHome />} />
-            <Route path="orders" element={<OrdersPage />} />
-            <Route path="orders/:id" element={<OrderDetails />} />
-            <Route path="schedule" element={<SchedulePage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="customers" element={<Customers />} />
-            <Route path="customers/new" element={<CustomerForm />} />
-            <Route path="customers/:id" element={<CustomerDetails />} />
-            <Route path="customers/:id/edit" element={<CustomerForm />} />
-            <Route path="backup" element={<BackupPage />} />
-            
-            {/* Restricted Owner Routes */}
-            <Route element={<OwnerLayout />}>
-              <Route path="pricing" element={<PricingPage />} />
-              <Route path="billing" element={<BillingPage />} />
-              <Route path="reports" element={<ReportsPage />} />
-              <Route path="employees" element={<EmployeesPage />} />
-              <Route path="employees/:id" element={<EmployeeDetails />} />
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<DashboardHome />} />
+              <Route path="orders" element={<OrdersPage />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="schedule" element={<SchedulePage />} />
               <Route path="users" element={<UsersPage />} />
-              <Route path="settings" element={<SettingsPage />} />
+              <Route path="customers" element={<Customers />} />
+              <Route path="customers/new" element={<CustomerForm />} />
+              <Route path="customers/:id" element={<CustomerDetails />} />
+              <Route path="customers/:id/edit" element={<CustomerForm />} />
+              <Route path="backup" element={<BackupPage />} />
+              
+              {/* Restricted Owner Routes */}
+              <Route element={<OwnerLayout />}>
+                <Route path="pricing" element={<PricingPage />} />
+                <Route path="billing" element={<BillingPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+                <Route path="employees" element={<EmployeesPage />} />
+                <Route path="employees/:id" element={<EmployeeDetails />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+              <Route path="invoices/:orderId" element={<InvoicePage />} />
             </Route>
-            <Route path="invoices/:orderId" element={<InvoicePage />} />
-          </Route>
-        </Routes>
-      </Suspense>
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
       <Analytics />
     </Router>
   );
