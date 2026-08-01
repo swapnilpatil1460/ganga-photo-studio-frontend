@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, CheckCircle, Activity, Briefcase, Calendar, Phone, Mail, User } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Activity, Briefcase, Calendar, Phone, Mail, User, Key, X, Copy } from 'lucide-react';
 
 interface Employee {
   _id: string;
@@ -36,6 +36,34 @@ export default function EmployeeDetails() {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const [resetConfirm, setResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [newCredentials, setNewCredentials] = useState<{email: string, password: string} | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleResetPassword = async () => {
+    setResetting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/reset-password`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNewCredentials(data.credentials);
+      } else {
+        alert('Failed to reset password. Please ensure you have Owner permissions.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred.');
+    } finally {
+      setResetting(false);
+      setResetConfirm(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -113,6 +141,13 @@ export default function EmployeeDetails() {
               </div>
             </div>
           </div>
+          
+          <button 
+            onClick={() => setResetConfirm(true)}
+            className="btn-outline flex items-center gap-2 border-yellow-500 text-yellow-600 hover:bg-yellow-50 shrink-0"
+          >
+            <Key size={18} /> Reset Password
+          </button>
         </div>
       </div>
 
@@ -227,6 +262,78 @@ export default function EmployeeDetails() {
         </div>
 
       </div>
+
+      {/* Reset Confirm Modal */}
+      {resetConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border p-6" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-border)' }}>
+            <h3 className="text-lg font-bold text-red-500 mb-2">Reset Password?</h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
+              Are you sure you want to generate a new password for <strong>{employee.name}</strong>? The old password will stop working immediately.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setResetConfirm(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-text)' }}>Cancel</button>
+              <button onClick={handleResetPassword} disabled={resetting} className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 disabled:opacity-50">
+                {resetting ? 'Resetting...' : 'Yes, Reset'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Credentials Modal */}
+      {newCredentials && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-border)' }}>
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--theme-border)' }}>
+              <h2 className="text-lg font-bold text-green-500">Password Reset Successful!</h2>
+            </div>
+            
+            <div className="p-6 flex flex-col items-center text-center space-y-4">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-2">
+                <CheckCircle size={32} className="text-green-500" />
+              </div>
+              
+              <p className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>
+                A brand-new secure password has been generated for {employee.name}. Please securely share these login credentials with them:
+              </p>
+              
+              <div className="w-full p-4 rounded-lg text-left relative" style={{ backgroundColor: 'var(--theme-bg-alt, rgba(0,0,0,0.2))', border: '1px solid var(--theme-border)' }}>
+                <div className="mb-2">
+                  <span className="text-xs uppercase tracking-wider font-bold block mb-1" style={{ color: 'var(--theme-text-muted)' }}>Email</span>
+                  <span className="font-mono text-sm" style={{ color: 'var(--theme-text)' }}>{newCredentials.email}</span>
+                </div>
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-bold block mb-1" style={{ color: 'var(--theme-text-muted)' }}>New Password</span>
+                  <span className="font-mono text-sm" style={{ color: 'var(--theme-text)' }}>{newCredentials.password}</span>
+                </div>
+                
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`Email: ${newCredentials.email}\nPassword: ${newCredentials.password}`);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors"
+                  style={{ backgroundColor: 'var(--theme-bg)', color: copied ? '#22c55e' : 'var(--theme-text-muted)', border: '1px solid var(--theme-border)' }}
+                >
+                  {copied ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t flex justify-end gap-2" style={{ borderColor: 'var(--theme-border)', backgroundColor: 'var(--theme-bg-alt, rgba(0,0,0,0.2))' }}>
+              <button 
+                onClick={() => setNewCredentials(null)}
+                className="px-4 py-2 text-black text-sm font-semibold rounded-lg hover:opacity-90"
+                style={{ backgroundColor: 'var(--accent, #f59e0b)' }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
