@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, KeyRound, AlertCircle, X, AlertTriangle } from 'lucide-react';
+import { Trash2, KeyRound, AlertCircle, X, AlertTriangle, Eye, Copy, CheckCircle } from 'lucide-react';
 
 interface UserData {
   _id: string;
@@ -13,6 +13,11 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  
+  const [resetConfirmId, setResetConfirmId] = useState<string | null>(null);
+  const [resettingId, setResettingId] = useState<string | null>(null);
+  const [newCredentials, setNewCredentials] = useState<{email: string, password: string} | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -59,6 +64,31 @@ export default function UsersPage() {
       setError(err.message);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const confirmResetPassword = async () => {
+    if (!resetConfirmId) return;
+    
+    setResettingId(resetConfirmId);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${resetConfirmId}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (!res.ok) throw new Error('Failed to reset password');
+      
+      const data = await res.json();
+      setNewCredentials(data.credentials);
+      setResetConfirmId(null);
+    } catch (err: any) {
+      setError(err.message);
+      setResetConfirmId(null);
+    } finally {
+      setResettingId(null);
     }
   };
 
@@ -115,8 +145,17 @@ export default function UsersPage() {
                     <td className="p-4">
                       <div className="font-medium text-white">{user.email}</div>
                     </td>
-                    <td className="p-4">
-                      <div className="font-mono text-sm text-[var(--theme-text-muted)]">********</div>
+                    <td className="p-4 group">
+                      <div className="flex items-center gap-3">
+                        <div className="font-mono text-sm text-[var(--theme-text-muted)]">********</div>
+                        <button 
+                          onClick={() => setResetConfirmId(user._id)}
+                          title="Generate New Password"
+                          className="text-gray-500 hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </div>
                     </td>
                     <td className="p-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
@@ -195,6 +234,86 @@ export default function UsersPage() {
                 ) : (
                   'Yes, Revoke Access'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Password Reset Confirmation Modal */}
+      {resetConfirmId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <h2 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
+                <KeyRound size={20} />
+                Generate New Password?
+              </h2>
+              <button onClick={() => setResetConfirmId(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors text-gray-400">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 text-[var(--theme-text-muted)] space-y-4">
+              <p>For security reasons, existing passwords cannot be viewed. However, you can instantly generate a brand-new secure password for this user.</p>
+              <p className="text-sm bg-yellow-500/10 text-yellow-500 p-3 rounded-lg border border-yellow-500/20">
+                <strong>Important:</strong> Their current password will stop working immediately.
+              </p>
+            </div>
+            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
+              <button onClick={() => setResetConfirmId(null)} disabled={!!resettingId} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">Cancel</button>
+              <button onClick={confirmResetPassword} disabled={!!resettingId} className="px-4 py-2 text-sm font-bold rounded-lg bg-yellow-600 text-white hover:bg-yellow-500 transition-colors flex items-center gap-2">
+                {resettingId ? 'Generating...' : 'Yes, Generate Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Credentials Modal */}
+      {newCredentials && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <h2 className="text-lg font-bold text-green-500">Password Generated!</h2>
+            </div>
+            
+            <div className="p-6 flex flex-col items-center text-center space-y-4">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-2">
+                <CheckCircle size={32} className="text-green-500" />
+              </div>
+              
+              <p className="text-sm text-[var(--theme-text-muted)]">
+                Please securely share these login credentials with the user:
+              </p>
+              
+              <div className="w-full p-4 rounded-lg text-left relative bg-black/50 border border-gray-800">
+                <div className="mb-2">
+                  <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">Email</span>
+                  <span className="font-mono text-sm text-white">{newCredentials.email}</span>
+                </div>
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">New Password</span>
+                  <span className="font-mono text-sm text-white">{newCredentials.password}</span>
+                </div>
+                
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`Email: ${newCredentials.email}\nPassword: ${newCredentials.password}`);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className={`absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors border ${copied ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
+                >
+                  {copied ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-2">
+              <button 
+                onClick={() => setNewCredentials(null)}
+                className="px-4 py-2 text-black text-sm font-semibold rounded-lg bg-yellow-500 hover:bg-yellow-400"
+              >
+                Done
               </button>
             </div>
           </div>
