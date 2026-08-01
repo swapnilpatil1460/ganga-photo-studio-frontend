@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Camera, Users, IndianRupee, ShoppingCart, RefreshCw, AlertCircle } from 'lucide-react';
 import SummaryCard from '../components/Charts/SummaryCard';
 import RevenueChart from '../components/Charts/RevenueChart';
@@ -16,7 +16,7 @@ const DashboardHome = () => {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders/analytics', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to load dashboard data');
@@ -34,8 +34,8 @@ const DashboardHome = () => {
   }, []);
 
   const formatRupees = (val: number) => {
-    if (val === undefined || val === null) return '₹0';
-    return `₹${val.toLocaleString('en-IN')}`;
+    if (val === undefined || val === null) return 'â‚¹0';
+    return `â‚¹${val.toLocaleString('en-IN')}`;
   };
 
   return (
@@ -52,7 +52,7 @@ const DashboardHome = () => {
             Studio Overview
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--theme-text-muted)" }}>
-            Ganga Photo Studio — Live Business Analytics
+            Ganga Photo Studio â€” Live Business Analytics
           </p>
         </div>
         <button
@@ -94,7 +94,7 @@ const DashboardHome = () => {
           {/* 1. Today's Revenue */}
           <SummaryCard
             title="Today's Revenue"
-            value={data ? formatRupees(data.revenueToday) : '₹0'}
+            value={data ? formatRupees(data.revenueToday) : 'â‚¹0'}
             icon={<IndianRupee size={22} />}
             trend="up"
             color="#c9a15a"
@@ -103,7 +103,7 @@ const DashboardHome = () => {
           {/* 2. Monthly Revenue */}
           <SummaryCard
             title="Monthly Revenue"
-            value={data ? formatRupees(data.revenueThisMonth) : '₹0'}
+            value={data ? formatRupees(data.revenueThisMonth) : 'â‚¹0'}
             icon={<IndianRupee size={22} />}
             trend="up"
             color="#10b981"
@@ -128,7 +128,7 @@ const DashboardHome = () => {
           {/* 5. Pending Payments */}
           <SummaryCard
             title="Pending Payments"
-            value={data ? formatRupees(data.pendingPayments) : '₹0'}
+            value={data ? formatRupees(data.pendingPayments) : 'â‚¹0'}
             icon={<AlertCircle size={22} />}
             color="#ef4444"
             isLoading={loading}

@@ -32,7 +32,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     
     // Fetch orders and employees independently so one failure doesn't block the other
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/orders/customer/${customerId}`, {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + `/api/orders/customer/${customerId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -46,14 +46,13 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     }
 
     try {
-      const empRes = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, {
+      const empRes = await fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
       });
       if (empRes.ok) {
         const result = await empRes.json();
         const emps = Array.isArray(result) ? result : (result.data || []);
         setEmployeesList(emps);
-        console.log('Employees loaded:', emps.length, emps.map((e: any) => e.name));
       } else {
         console.error('Employee fetch failed with status:', empRes.status);
       }
@@ -73,7 +72,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     setSavingOrder(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,8 +151,8 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 >
                   <td className="font-mono text-sm font-bold text-yellow-500">{order.orderId}</td>
                   <td className="font-medium">{order.service}</td>
-                  <td className="font-bold">₹{(order.totalAmount || 0).toLocaleString()}</td>
-                  <td className="font-medium text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</td>
+                  <td className="font-bold">â‚¹{(order.totalAmount || 0).toLocaleString()}</td>
+                  <td className="font-medium text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</td>
                   <td>
                     <span className={`px-2 py-1 rounded text-xs font-bold ${
                       order.status === 'Delivered' ? 'bg-green-500/20 text-green-400' :
@@ -253,7 +252,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Price per unit (₹)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Price per unit (â‚¹)</label>
                   <input 
                     type="number" min="0" required
                     className="search-input w-full"
@@ -287,7 +286,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Paid Amount (₹)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Paid Amount (â‚¹)</label>
                   <input 
                     type="number" min="0" required
                     className="search-input w-full"
@@ -299,7 +298,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
 
               <div className="mt-8 p-4 rounded-lg flex justify-between items-center" style={{ backgroundColor: 'var(--theme-bg)' }}>
                 <span className="font-medium" style={{ color: 'var(--theme-text-muted)' }}>Total Amount:</span>
-                <span className="text-xl font-bold" style={{ color: 'var(--color-yellow-500)' }}>₹{(orderForm.quantity * orderForm.price).toLocaleString()}</span>
+                <span className="text-xl font-bold" style={{ color: 'var(--color-yellow-500)' }}>â‚¹{(orderForm.quantity * orderForm.price).toLocaleString()}</span>
               </div>
 
               <div className="mt-6 flex justify-end gap-3">

@@ -5,7 +5,6 @@ interface UserData {
   _id: string;
   email: string;
   role: string;
-  password?: string;
 }
 
 export default function UsersPage() {
@@ -21,7 +20,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/users', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/users', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -45,7 +44,7 @@ export default function UsersPage() {
     
     setDeletingId(confirmDeleteId);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/${confirmDeleteId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${confirmDeleteId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -117,7 +116,7 @@ export default function UsersPage() {
                       <div className="font-medium text-white">{user.email}</div>
                     </td>
                     <td className="p-4">
-                      <div className="font-mono text-sm text-[var(--theme-text-muted)]">{user.password || '********'}</div>
+                      <div className="font-mono text-sm text-[var(--theme-text-muted)]">********</div>
                     </td>
                     <td className="p-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${

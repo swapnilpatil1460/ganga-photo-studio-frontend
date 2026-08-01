@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, X, Check } from 'lucide-react';
 import type { Customer } from './Customers';
@@ -27,7 +27,7 @@ const CustomerForm = () => {
       const fetchCustomer = async () => {
         try {
           const token = localStorage.getItem('token');
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}`, {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {
@@ -64,7 +64,7 @@ const CustomerForm = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const url = isEdit ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}` : (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/customers';
+      const url = isEdit ? `${import.meta.env.VITE_API_URL || ''}/api/customers/${id}` : (import.meta.env.VITE_API_URL || '') + '/api/customers';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {

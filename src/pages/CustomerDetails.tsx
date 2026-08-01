@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Edit2, MapPin, Phone, Mail, Calendar, Shield, ShoppingCart, DollarSign, Package } from 'lucide-react';
 import type { Customer } from './Customers';
@@ -15,7 +15,7 @@ const CustomerDetails = () => {
   const fetchCustomer = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -153,7 +153,7 @@ const CustomerDetails = () => {
                     <div className="stat-icon"><DollarSign size={24} /></div>
                   </div>
                   <h3 className="stat-title">Total Revenue</h3>
-                  <p className="stat-value text-yellow-500">₹{(customer.totalSpent || 0).toLocaleString()}</p>
+                  <p className="stat-value text-yellow-500">â‚¹{(customer.totalSpent || 0).toLocaleString()}</p>
                 </div>
                 
                 <div className="stat-card">

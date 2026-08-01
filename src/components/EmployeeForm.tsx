@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { X, Copy, Check } from 'lucide-react';
 
 interface EmployeeFormProps {
@@ -82,7 +82,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
     setLoading(true);
     
     try {
-      const url = employee ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/employees/${employee._id}` : (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees';
+      const url = employee ? `${import.meta.env.VITE_API_URL || ''}/api/employees/${employee._id}` : (import.meta.env.VITE_API_URL || '') + '/api/employees';
       const method = employee ? 'PUT' : 'POST';
       
       const payload: any = { ...formData };
@@ -278,7 +278,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
           </div>
           
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--theme-text-muted)' }}>Salary / Month (₹)</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--theme-text-muted)' }}>Salary / Month (â‚¹)</label>
             <input 
               type="number"
               className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-yellow-500"

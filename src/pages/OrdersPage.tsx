@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {  Search, Filter, Loader, AlertCircle, Package, CheckCircle2, Clock, IndianRupee, Eye, Calendar, User, BarChart3 , RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -55,9 +55,9 @@ const OrdersPage = () => {
       if (dateRange.end) params.append('endDate', dateRange.end);
 
       const [ordersRes, analyticsRes, empRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?${params.toString()}`, { headers }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/orders/analytics', { headers }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
+        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?${params.toString()}`, { headers }),
+        fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', { headers }),
+        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
       ]);
 
       if (ordersRes.ok) {
@@ -305,9 +305,9 @@ const OrdersPage = () => {
                       </div>
                     </td>
                     <td><span className="badge badge-gray">{cust.count} Order(s)</span></td>
-                    <td className="font-medium">₹{cust.total.toLocaleString()}</td>
-                    <td className="font-medium text-green-500">₹{cust.paid.toLocaleString()}</td>
-                    <td className="font-bold text-red-500">₹{cust.rem.toLocaleString()}</td>
+                    <td className="font-medium">â‚¹{cust.total.toLocaleString()}</td>
+                    <td className="font-medium text-green-500">â‚¹{cust.paid.toLocaleString()}</td>
+                    <td className="font-bold text-red-500">â‚¹{cust.rem.toLocaleString()}</td>
                   </tr>
                 ));
               })()}
@@ -366,10 +366,10 @@ const OrdersPage = () => {
                       <span className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>{order.assignedEmployee || 'Unassigned'}</span>
                     </td>
                     <td>
-                      <span className="font-medium text-sm">₹{(order.totalAmount || 0).toLocaleString()}</span>
+                      <span className="font-medium text-sm">â‚¹{(order.totalAmount || 0).toLocaleString()}</span>
                     </td>
                     <td>
-                      <span className="font-medium text-sm text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</span>
+                      <span className="font-medium text-sm text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</span>
                     </td>
                     <td>
                       <span className={`text-xs font-bold ${getPriorityColor(order.priority || 'Normal')}`}>

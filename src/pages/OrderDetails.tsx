@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Package, Calendar, Clock, FileText, Activity, Shield, Download, MapPin, Phone, Mail, Camera, Loader, CheckCircle2, XCircle, FileEdit, History, AlertCircle } from 'lucide-react';
 
@@ -20,8 +20,8 @@ const OrderDetails = () => {
     try {
       const token = localStorage.getItem('token');
       const [orderRes, empRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
+        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
       ]);
       
       if (orderRes.ok) {
@@ -50,7 +50,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/status`, {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/assign`, {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/assign`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const OrderDetails = () => {
     setActionLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/payment`, {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/payment`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ const OrderDetails = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium">AMOUNT</p>
-                    <p className="text-sm text-yellow-500 font-bold">₹{(order.totalAmount || 0).toLocaleString()}</p>
+                    <p className="text-sm text-yellow-500 font-bold">â‚¹{(order.totalAmount || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -220,15 +220,15 @@ const OrderDetails = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500 font-medium">Total Amount</span>
-                  <span className="font-bold text-gray-900">₹{(order.totalAmount || 0).toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">â‚¹{(order.totalAmount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500 font-medium">Amount Paid</span>
-                  <span className="font-bold text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</span>
+                  <span className="font-bold text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-100">
                   <span className="text-gray-900 font-bold">Remaining Due</span>
-                  <span className="font-bold text-red-500">₹{((order.totalAmount || 0) - (order.paidAmount || 0)).toLocaleString()}</span>
+                  <span className="font-bold text-red-500">â‚¹{((order.totalAmount || 0) - (order.paidAmount || 0)).toLocaleString()}</span>
                 </div>
                 
                 {((order.totalAmount || 0) - (order.paidAmount || 0)) > 0 && (

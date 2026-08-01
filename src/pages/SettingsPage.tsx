@@ -25,23 +25,77 @@ const SettingsPage = () => {
   const [securitySaved, setSecuritySaved] = useState(false);
 
   useEffect(() => {
-    // Load studio profile from local storage if exists
-    const savedProfile = localStorage.getItem('studioProfile');
-    if (savedProfile) {
-      setStudioProfile(JSON.parse(savedProfile));
-    }
-  }, []);
+    const fetchSettings = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.studioName) {
+            setStudioProfile({
+              name: data.studioName || 'Ganga Photo Studio',
+              email: data.email || '',
+              phone: data.phone || '',
+              address: data.address || '',
+              gstId: data.gstId || ''
+            });
+          }
+          if (data.theme) {
+            setTheme(data.theme);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load settings', error);
+      }
+    };
+    fetchSettings();
+  }, [setTheme]);
 
-  const handleThemeChange = (newTheme: string) => {
+  const handleThemeChange = async (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem('themePreference', newTheme);
+    try {
+      const token = localStorage.getItem('token');
+      await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ theme: newTheme })
+      });
+    } catch (error) {
+      console.error('Failed to save theme setting', error);
+    }
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('studioProfile', JSON.stringify(studioProfile));
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 3000);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          studioName: studioProfile.name,
+          email: studioProfile.email,
+          phone: studioProfile.phone,
+          address: studioProfile.address,
+          gstId: studioProfile.gstId
+        })
+      });
+      if (res.ok) {
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 3000);
+      }
+    } catch (error) {
+      console.error('Failed to save settings', error);
+    }
   };
 
   const handleSaveSecurity = (e: React.FormEvent) => {

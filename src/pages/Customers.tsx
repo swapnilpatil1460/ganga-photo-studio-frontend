@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, Eye, RefreshCw, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,7 +32,7 @@ const Customers = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      let url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers?page=${page}&limit=${limit}`;
+      let url = `${import.meta.env.VITE_API_URL || ''}/api/customers?page=${page}&limit=${limit}`;
       
       if (search) {
         // Simple heuristic: if it looks like a number, search by phone, else by name
@@ -74,7 +74,7 @@ const Customers = () => {
     if (!confirm('Are you sure you want to delete this customer?')) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/customers/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -161,7 +161,7 @@ const Customers = () => {
                     <td>{customer.phone}</td>
                     <td>{getStatusBadge(customer.status)}</td>
                     <td>{customer.totalOrders}</td>
-                    <td>₹{(customer.totalSpent || 0).toLocaleString()}</td>
+                    <td>â‚¹{(customer.totalSpent || 0).toLocaleString()}</td>
                     <td onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-2">
                         <button className="action-btn view" title="View Profile" onClick={() => navigate(`/dashboard/customers/${customer._id}`)}>

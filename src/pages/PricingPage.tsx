@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { DollarSign, Construction } from 'lucide-react';
 
 const PricingPage = () => {

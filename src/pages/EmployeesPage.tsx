@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, Search, Loader, AlertCircle, Edit, ExternalLink, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EmployeeForm from '../components/EmployeeForm';
@@ -28,7 +28,7 @@ const EmployeesPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/employees', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/employees', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {

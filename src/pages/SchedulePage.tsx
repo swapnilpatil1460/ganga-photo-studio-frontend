@@ -1,11 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Plus, X, Clock, MapPin, User,
   Trash2, AlertTriangle, CalendarDays, List
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
-/* Config — event types.                                               */
+/* Config â€” event types.                                               */
 /* ------------------------------------------------------------------ */
 const EVENT_TYPES = [
   { id: 'wedding',        label: 'Wedding',         dot: '#C9A24B', bg: 'rgba(201, 162, 75, 0.2)', text: 'var(--theme-text)' },
@@ -51,7 +51,7 @@ export default function SchedulePage() {
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule?limit=500', {
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/schedule?limit=500', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -115,7 +115,7 @@ export default function SchedulePage() {
     
     try {
       const token = localStorage.getItem('token');
-      const url = mode === 'add' ? (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/schedule' : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule/${form.id}`;
+      const url = mode === 'add' ? (import.meta.env.VITE_API_URL || '') + '/api/schedule' : `${import.meta.env.VITE_API_URL || ''}/api/schedule/${form.id}`;
       const method = mode === 'add' ? 'POST' : 'PUT';
       
       const res = await fetch(url, {
@@ -144,7 +144,7 @@ export default function SchedulePage() {
   async function deleteEvent() { 
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/schedule/${modal.form.id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/schedule/${modal.form.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -283,7 +283,7 @@ export default function SchedulePage() {
               </div>
             </div>
 
-            {/* Sidebar — upcoming events */}
+            {/* Sidebar â€” upcoming events */}
             <div className="profile-card flex-1 w-full min-w-[300px]">
               <span className="text-lg font-semibold text-[var(--theme-text)]">Upcoming</span>
               <div className="flex flex-col gap-3 mt-4">
@@ -301,7 +301,7 @@ export default function SchedulePage() {
                         <div className="text-sm font-medium text-[var(--theme-text)] truncate">{e.title}</div>
                         <div className="flex items-center gap-1.5 mt-1">
                           <span style={{ width: 6, height: 6, borderRadius: '50%', background: t.dot }} />
-                          <span className="text-xs text-[var(--theme-text-muted)]">{t.label} · {e.startTime}</span>
+                          <span className="text-xs text-[var(--theme-text-muted)]">{t.label} Â· {e.startTime}</span>
                         </div>
                       </div>
                     </div>
@@ -341,14 +341,14 @@ export default function SchedulePage() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="text-[var(--theme-text)]">{e.date}</div>
-                          <div className="text-xs text-[var(--theme-text-muted)] mt-0.5">{e.startTime} – {e.endTime}</div>
+                          <div className="text-xs text-[var(--theme-text-muted)] mt-0.5">{e.startTime} â€“ {e.endTime}</div>
                         </td>
                         <td className="py-3 px-4">
-                          <div className="text-[var(--theme-text)]">{e.customerName || '—'}</div>
+                          <div className="text-[var(--theme-text)]">{e.customerName || 'â€”'}</div>
                           <div className="text-xs text-[var(--theme-text-muted)] mt-0.5">{e.customerNumber}</div>
                         </td>
-                        <td className="py-3 px-4 text-[var(--theme-text)]">{e.assignedTo || '—'}</td>
-                        <td className="py-3 px-4 text-[var(--theme-text-muted)] text-xs">{e.location || '—'}</td>
+                        <td className="py-3 px-4 text-[var(--theme-text)]">{e.assignedTo || 'â€”'}</td>
+                        <td className="py-3 px-4 text-[var(--theme-text-muted)] text-xs">{e.location || 'â€”'}</td>
                       </tr>
                     );
                   })
@@ -359,7 +359,7 @@ export default function SchedulePage() {
         )}
       </div>
 
-      {/* Modal — add / edit / view */}
+      {/* Modal â€” add / edit / view */}
       {modal && (
         <div onClick={closeModal} className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div onClick={(e) => e.stopPropagation()} className="profile-card w-[480px] max-w-full max-h-[90vh] overflow-y-auto !m-0 !p-6 shadow-2xl">
@@ -374,7 +374,7 @@ export default function SchedulePage() {
               <div className="flex gap-2 items-start bg-red-500/10 border border-red-500/30 text-red-500 rounded-lg p-3 text-sm mb-5">
                 <AlertTriangle size={16} className="shrink-0 mt-0.5" />
                 <span>
-                  Clash: {conflicts[0].assignedTo.split(',')[0]} is already on "{conflicts[0].title}" {conflicts[0].startTime}–{conflicts[0].endTime} that day.
+                  Clash: {conflicts[0].assignedTo.split(',')[0]} is already on "{conflicts[0].title}" {conflicts[0].startTime}â€“{conflicts[0].endTime} that day.
                   {manage ? ' You can save anyway.' : ''}
                 </span>
               </div>
@@ -387,13 +387,13 @@ export default function SchedulePage() {
                   <h3 className="text-lg font-medium text-[var(--theme-text)] mt-3">{modal.form.title}</h3>
                 </div>
                 <div className="flex flex-col gap-2.5 text-sm text-[var(--theme-text-muted)] bg-[var(--theme-bg-main)] p-4 rounded-lg border border-[var(--theme-border)]">
-                  <div className="flex gap-2.5 items-center"><Clock size={16} className="text-[var(--color-yellow-500)]" /> {modal.form.date} · {modal.form.startTime}–{modal.form.endTime}</div>
-                  <div className="flex gap-2.5 items-center"><MapPin size={16} className="text-[var(--color-yellow-500)]" /> {modal.form.location || '—'}</div>
-                  <div className="flex gap-2.5 items-center"><User size={16} className="text-[var(--color-yellow-500)]" /> Assigned: {modal.form.assignedTo || '—'}</div>
+                  <div className="flex gap-2.5 items-center"><Clock size={16} className="text-[var(--color-yellow-500)]" /> {modal.form.date} Â· {modal.form.startTime}â€“{modal.form.endTime}</div>
+                  <div className="flex gap-2.5 items-center"><MapPin size={16} className="text-[var(--color-yellow-500)]" /> {modal.form.location || 'â€”'}</div>
+                  <div className="flex gap-2.5 items-center"><User size={16} className="text-[var(--color-yellow-500)]" /> Assigned: {modal.form.assignedTo || 'â€”'}</div>
                   {(modal.form.customerName || modal.form.customerNumber) && (
                     <div className="flex gap-2.5 items-center pt-2 border-t border-[var(--theme-border)]">
                       <span className="font-medium">Customer:</span> 
-                      {modal.form.customerName || '—'} {modal.form.customerNumber ? `(${modal.form.customerNumber})` : ''}
+                      {modal.form.customerName || 'â€”'} {modal.form.customerNumber ? `(${modal.form.customerNumber})` : ''}
                     </div>
                   )}
                 </div>
@@ -408,7 +408,7 @@ export default function SchedulePage() {
               <div className="flex flex-col gap-4">
                 <div>
                   <label className="ss-label">Event title</label>
-                  <input className="ss-input" value={modal.form.title} onChange={(e) => updateForm({ title: e.target.value })} placeholder="e.g. Deshmukh Wedding — Day 1" />
+                  <input className="ss-input" value={modal.form.title} onChange={(e) => updateForm({ title: e.target.value })} placeholder="e.g. Deshmukh Wedding â€” Day 1" />
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">

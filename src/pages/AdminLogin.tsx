@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AdminLogin = () => {
@@ -19,7 +19,7 @@ const AdminLogin = () => {
 
     setLoading(true);
     try {
-      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api/auth/login', {
+      const response = await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ const AdminLogin = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg outline-none transition-colors border text-sm tracking-widest placeholder:tracking-normal"
               style={{ background: '#0a1011', borderColor: '#1f2b2d', color: '#ffffff' }}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               required
             />
           </div>

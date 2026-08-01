@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   User,
   CalendarCheck,
@@ -59,7 +59,7 @@ const services = [
 
 const steps = [
   { n: "01", title: "Onboard in minutes", desc: "Add client, event type & package details fast." },
-  { n: "02", title: "Manage the workflow", desc: "Editing, selection, album design — one board." },
+  { n: "02", title: "Manage the workflow", desc: "Editing, selection, album design â€” one board." },
   { n: "03", title: "Get paid, get reports", desc: "Auto-invoices, dues & performance, at a glance." },
 ];
 
@@ -212,11 +212,11 @@ export default function GangaPhotoLanding() {
             Every Order.
             <br />
             <span style={{ backgroundImage: goldGradient, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-              Every Rupee — Tracked.
+              Every Rupee â€” Tracked.
             </span>
           </h1>
           <p style={{ color: colors.muted }} className="text-base md:text-lg mb-9 max-w-md">
-            One dashboard to manage bookings, edits, albums and payments — built for Indian photography studios.
+            One dashboard to manage bookings, edits, albums and payments â€” built for Indian photography studios.
           </p>
           <div className="flex flex-wrap gap-4">
             <SecondaryButton>
@@ -340,7 +340,7 @@ export default function GangaPhotoLanding() {
             </span>
           </p>
           <p style={{ color: colors.muted, letterSpacing: "0.1em" }} className="text-xs flex items-center justify-center gap-2">
-            <span style={{ color: "#3b82f6" }}>🔷</span> 
+            <span style={{ color: "#3b82f6" }}>ðŸ”·</span> 
             <span>Trusted by Generations &middot; STUDIO OWNER &middot; Ganga Photo</span>
           </p>
         </div>
@@ -405,7 +405,7 @@ export default function GangaPhotoLanding() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t" style={{ borderColor: "#1f2b2d" }}>
-          <p style={{ color: colors.mutedDark }} className="text-xs">© 2026 Ganga Photo. All rights reserved.</p>
+          <p style={{ color: colors.mutedDark }} className="text-xs">Â© 2026 Ganga Photo. All rights reserved.</p>
           <div className="flex gap-3">
             <a href="https://www.instagram.com/gangaphotos?igsh=YXZ0NHJpN282aGpq" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-full flex items-center justify-center border hover:bg-white/5 transition-colors" style={{ borderColor: colors.mutedDark }}>
               <Instagram size={15} color={colors.mutedDark} />

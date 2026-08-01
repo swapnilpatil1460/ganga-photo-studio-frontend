@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Download, Calendar, Filter, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const ReportsPage = () => {
@@ -16,7 +16,7 @@ const ReportsPage = () => {
     try {
       const token = localStorage.getItem('token');
       // Pass start and end date to backend
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders?startDate=${dateRange.start}&endDate=${dateRange.end}T23:59:59.999Z`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?startDate=${dateRange.start}&endDate=${dateRange.end}T23:59:59.999Z`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -165,17 +165,17 @@ const ReportsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="profile-card flex flex-col justify-center">
           <h4 className="text-sm font-medium text-[var(--theme-text-muted)] mb-1">Total Revenue</h4>
-          <p className="text-3xl font-bold text-[var(--theme-text)]">₹{totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-[var(--theme-text)]">â‚¹{totalRevenue.toLocaleString()}</p>
           <p className="text-xs text-[var(--theme-text-muted)] mt-2">Booked in this period</p>
         </div>
         <div className="profile-card flex flex-col justify-center">
           <h4 className="text-sm font-medium text-[var(--theme-text-muted)] mb-1">Total Collected</h4>
-          <p className="text-3xl font-bold text-green-400">₹{totalCollected.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-green-400">â‚¹{totalCollected.toLocaleString()}</p>
           <p className="text-xs text-[var(--theme-text-muted)] mt-2">Paid towards these orders</p>
         </div>
         <div className="profile-card flex flex-col justify-center">
           <h4 className="text-sm font-medium text-[var(--theme-text-muted)] mb-1">Total Remaining Due</h4>
-          <p className="text-3xl font-bold text-red-400">₹{totalDue.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-red-400">â‚¹{totalDue.toLocaleString()}</p>
           <p className="text-xs text-[var(--theme-text-muted)] mt-2">Outstanding balance</p>
         </div>
       </div>
@@ -213,9 +213,9 @@ const ReportsPage = () => {
                     <td>{order.service}</td>
                     <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td>{new Date(order.expectedDeliveryDate).toLocaleDateString()}</td>
-                    <td className="font-medium">₹{(order.totalAmount || 0).toLocaleString()}</td>
+                    <td className="font-medium">â‚¹{(order.totalAmount || 0).toLocaleString()}</td>
                     <td className={`font-bold ${due > 0 ? 'text-red-500' : 'text-green-500'}`}>
-                      ₹{due.toLocaleString()}
+                      â‚¹{due.toLocaleString()}
                     </td>
                   </tr>
                 );
