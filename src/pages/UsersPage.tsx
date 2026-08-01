@@ -72,16 +72,16 @@ export default function UsersPage() {
     
     setResettingId(resetConfirmId);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${resetConfirmId}/reset-password`, {
-        method: 'POST',
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${resetConfirmId}/password`, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       
-      if (!res.ok) throw new Error('Failed to reset password');
-      
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to fetch password');
+      
       setNewCredentials(data.credentials);
       setResetConfirmId(null);
     } catch (err: any) {
@@ -150,7 +150,7 @@ export default function UsersPage() {
                         <div className="font-mono text-sm text-[var(--theme-text-muted)]">********</div>
                         <button 
                           onClick={() => setResetConfirmId(user._id)}
-                          title="Generate New Password"
+                          title="View Password"
                           className="text-gray-500 hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
                         >
                           <Eye size={16} />
@@ -246,22 +246,22 @@ export default function UsersPage() {
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
               <h2 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
                 <KeyRound size={20} />
-                Generate New Password?
+                View User Password?
               </h2>
               <button onClick={() => setResetConfirmId(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors text-gray-400">
                 <X size={20} />
               </button>
             </div>
             <div className="p-6 text-[var(--theme-text-muted)] space-y-4">
-              <p>For security reasons, existing passwords cannot be viewed. However, you can instantly generate a brand-new secure password for this user.</p>
+              <p>You are about to view this user's current password securely.</p>
               <p className="text-sm bg-yellow-500/10 text-yellow-500 p-3 rounded-lg border border-yellow-500/20">
-                <strong>Important:</strong> Their current password will stop working immediately.
+                <strong>Note:</strong> Please do not share this password with anyone except the user.
               </p>
             </div>
             <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
               <button onClick={() => setResetConfirmId(null)} disabled={!!resettingId} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">Cancel</button>
               <button onClick={confirmResetPassword} disabled={!!resettingId} className="px-4 py-2 text-sm font-bold rounded-lg bg-yellow-600 text-white hover:bg-yellow-500 transition-colors flex items-center gap-2">
-                {resettingId ? 'Generating...' : 'Yes, Generate Password'}
+                {resettingId ? 'Decrypting...' : 'Yes, View Password'}
               </button>
             </div>
           </div>
@@ -273,7 +273,7 @@ export default function UsersPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
-              <h2 className="text-lg font-bold text-green-500">Password Generated!</h2>
+              <h2 className="text-lg font-bold text-green-500">Decrypted Password</h2>
             </div>
             
             <div className="p-6 flex flex-col items-center text-center space-y-4">
@@ -282,7 +282,7 @@ export default function UsersPage() {
               </div>
               
               <p className="text-sm text-[var(--theme-text-muted)]">
-                Please securely share these login credentials with the user:
+                Here are the user's current login credentials:
               </p>
               
               <div className="w-full p-4 rounded-lg text-left relative bg-black/50 border border-gray-800">
@@ -291,7 +291,7 @@ export default function UsersPage() {
                   <span className="font-mono text-sm text-white">{newCredentials.email}</span>
                 </div>
                 <div>
-                  <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">New Password</span>
+                  <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">Password</span>
                   <span className="font-mono text-sm text-white">{newCredentials.password}</span>
                 </div>
                 
