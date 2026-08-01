@@ -151,8 +151,8 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 >
                   <td className="font-mono text-sm font-bold text-yellow-500">{order.orderId}</td>
                   <td className="font-medium">{order.service}</td>
-                  <td className="font-bold">â‚¹{(order.totalAmount || 0).toLocaleString()}</td>
-                  <td className="font-medium text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</td>
+                  <td className="font-bold">₹{(order.totalAmount || 0).toLocaleString()}</td>
+                  <td className="font-medium text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</td>
                   <td>
                     <span className={`px-2 py-1 rounded text-xs font-bold ${
                       order.status === 'Delivered' ? 'bg-green-500/20 text-green-400' :
@@ -252,7 +252,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Price per unit (â‚¹)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Price per unit (₹)</label>
                   <input 
                     type="number" min="0" required
                     className="search-input w-full"
@@ -286,7 +286,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Paid Amount (â‚¹)</label>
+                  <label className="block text-sm font-medium mb-1" style={{ color: 'var(--theme-text-muted)' }}>Paid Amount (₹)</label>
                   <input 
                     type="number" min="0" required
                     className="search-input w-full"
@@ -298,7 +298,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
 
               <div className="mt-8 p-4 rounded-lg flex justify-between items-center" style={{ backgroundColor: 'var(--theme-bg)' }}>
                 <span className="font-medium" style={{ color: 'var(--theme-text-muted)' }}>Total Amount:</span>
-                <span className="text-xl font-bold" style={{ color: 'var(--color-yellow-500)' }}>â‚¹{(orderForm.quantity * orderForm.price).toLocaleString()}</span>
+                <span className="text-xl font-bold" style={{ color: 'var(--color-yellow-500)' }}>₹{(orderForm.quantity * orderForm.price).toLocaleString()}</span>
               </div>
 
               <div className="mt-6 flex justify-end gap-3">

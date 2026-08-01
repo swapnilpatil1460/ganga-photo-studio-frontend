@@ -278,7 +278,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
           </div>
           
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--theme-text-muted)' }}>Salary / Month (â‚¹)</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--theme-text-muted)' }}>Salary / Month (₹)</label>
             <input 
               type="number"
               className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-yellow-500"

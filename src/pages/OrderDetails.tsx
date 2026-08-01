@@ -186,7 +186,7 @@ const OrderDetails = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium">AMOUNT</p>
-                    <p className="text-sm text-yellow-500 font-bold">â‚¹{(order.totalAmount || 0).toLocaleString()}</p>
+                    <p className="text-sm text-yellow-500 font-bold">₹{(order.totalAmount || 0).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -220,15 +220,15 @@ const OrderDetails = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500 font-medium">Total Amount</span>
-                  <span className="font-bold text-gray-900">â‚¹{(order.totalAmount || 0).toLocaleString()}</span>
+                  <span className="font-bold text-gray-900">₹{(order.totalAmount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500 font-medium">Amount Paid</span>
-                  <span className="font-bold text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</span>
+                  <span className="font-bold text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-100">
                   <span className="text-gray-900 font-bold">Remaining Due</span>
-                  <span className="font-bold text-red-500">â‚¹{((order.totalAmount || 0) - (order.paidAmount || 0)).toLocaleString()}</span>
+                  <span className="font-bold text-red-500">₹{((order.totalAmount || 0) - (order.paidAmount || 0)).toLocaleString()}</span>
                 </div>
                 
                 {((order.totalAmount || 0) - (order.paidAmount || 0)) > 0 && (

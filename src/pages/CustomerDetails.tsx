@@ -153,7 +153,7 @@ const CustomerDetails = () => {
                     <div className="stat-icon"><DollarSign size={24} /></div>
                   </div>
                   <h3 className="stat-title">Total Revenue</h3>
-                  <p className="stat-value text-yellow-500">â‚¹{(customer.totalSpent || 0).toLocaleString()}</p>
+                  <p className="stat-value text-yellow-500">₹{(customer.totalSpent || 0).toLocaleString()}</p>
                 </div>
                 
                 <div className="stat-card">

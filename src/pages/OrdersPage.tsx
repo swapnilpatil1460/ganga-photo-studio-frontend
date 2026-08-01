@@ -305,9 +305,9 @@ const OrdersPage = () => {
                       </div>
                     </td>
                     <td><span className="badge badge-gray">{cust.count} Order(s)</span></td>
-                    <td className="font-medium">â‚¹{cust.total.toLocaleString()}</td>
-                    <td className="font-medium text-green-500">â‚¹{cust.paid.toLocaleString()}</td>
-                    <td className="font-bold text-red-500">â‚¹{cust.rem.toLocaleString()}</td>
+                    <td className="font-medium">₹{cust.total.toLocaleString()}</td>
+                    <td className="font-medium text-green-500">₹{cust.paid.toLocaleString()}</td>
+                    <td className="font-bold text-red-500">₹{cust.rem.toLocaleString()}</td>
                   </tr>
                 ));
               })()}
@@ -366,10 +366,10 @@ const OrdersPage = () => {
                       <span className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>{order.assignedEmployee || 'Unassigned'}</span>
                     </td>
                     <td>
-                      <span className="font-medium text-sm">â‚¹{(order.totalAmount || 0).toLocaleString()}</span>
+                      <span className="font-medium text-sm">₹{(order.totalAmount || 0).toLocaleString()}</span>
                     </td>
                     <td>
-                      <span className="font-medium text-sm text-green-500">â‚¹{(order.paidAmount || 0).toLocaleString()}</span>
+                      <span className="font-medium text-sm text-green-500">₹{(order.paidAmount || 0).toLocaleString()}</span>
                     </td>
                     <td>
                       <span className={`text-xs font-bold ${getPriorityColor(order.priority || 'Normal')}`}>

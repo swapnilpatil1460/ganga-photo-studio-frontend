@@ -34,8 +34,8 @@ const DashboardHome = () => {
   }, []);
 
   const formatRupees = (val: number) => {
-    if (val === undefined || val === null) return 'â‚¹0';
-    return `â‚¹${val.toLocaleString('en-IN')}`;
+    if (val === undefined || val === null) return '₹0';
+    return `₹${val.toLocaleString('en-IN')}`;
   };
 
   return (
@@ -94,7 +94,7 @@ const DashboardHome = () => {
           {/* 1. Today's Revenue */}
           <SummaryCard
             title="Today's Revenue"
-            value={data ? formatRupees(data.revenueToday) : 'â‚¹0'}
+            value={data ? formatRupees(data.revenueToday) : '₹0'}
             icon={<IndianRupee size={22} />}
             trend="up"
             color="#c9a15a"
@@ -103,7 +103,7 @@ const DashboardHome = () => {
           {/* 2. Monthly Revenue */}
           <SummaryCard
             title="Monthly Revenue"
-            value={data ? formatRupees(data.revenueThisMonth) : 'â‚¹0'}
+            value={data ? formatRupees(data.revenueThisMonth) : '₹0'}
             icon={<IndianRupee size={22} />}
             trend="up"
             color="#10b981"
@@ -128,7 +128,7 @@ const DashboardHome = () => {
           {/* 5. Pending Payments */}
           <SummaryCard
             title="Pending Payments"
-            value={data ? formatRupees(data.pendingPayments) : 'â‚¹0'}
+            value={data ? formatRupees(data.pendingPayments) : '₹0'}
             icon={<AlertCircle size={22} />}
             color="#ef4444"
             isLoading={loading}

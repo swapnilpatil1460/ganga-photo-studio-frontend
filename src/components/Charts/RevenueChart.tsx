@@ -20,10 +20,10 @@ interface RevenueChartProps {
 }
 
 const formatRupees = (value: number) => {
-  if (value === undefined || value === null) return 'â‚¹0';
-  if (value >= 100000) return `â‚¹${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `â‚¹${(value / 1000).toFixed(1)}K`;
-  return `â‚¹${value}`;
+  if (value === undefined || value === null) return '₹0';
+  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
+  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+  return `₹${value}`;
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       }}>
         <p style={{ margin: 0, fontWeight: 700, color: "var(--theme-text-muted)" }}>{label}</p>
         <p style={{ margin: "4px 0 0", color: "#c9a15a" }}>
-          Revenue: â‚¹{Number(payload[0].value).toLocaleString("en-IN")}
+          Revenue: ₹{Number(payload[0].value).toLocaleString("en-IN")}
         </p>
       </div>
     );

@@ -161,7 +161,7 @@ const Customers = () => {
                     <td>{customer.phone}</td>
                     <td>{getStatusBadge(customer.status)}</td>
                     <td>{customer.totalOrders}</td>
-                    <td>â‚¹{(customer.totalSpent || 0).toLocaleString()}</td>
+                    <td>₹{(customer.totalSpent || 0).toLocaleString()}</td>
                     <td onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-2">
                         <button className="action-btn view" title="View Profile" onClick={() => navigate(`/dashboard/customers/${customer._id}`)}>
