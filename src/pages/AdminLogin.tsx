@@ -93,7 +93,7 @@ const AdminLogin = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg outline-none transition-colors border text-sm tracking-widest placeholder:tracking-normal"
               style={{ background: '#0a1011', borderColor: '#1f2b2d', color: '#ffffff' }}
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="••••••••"
               required
             />
           </div>

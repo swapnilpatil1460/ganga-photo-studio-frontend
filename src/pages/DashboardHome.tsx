@@ -52,7 +52,7 @@ const DashboardHome = () => {
             Studio Overview
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--theme-text-muted)" }}>
-            Ganga Photo Studio â€” Live Business Analytics
+            Ganga Photo Studio — Live Business Analytics
           </p>
         </div>
         <button

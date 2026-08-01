@@ -59,7 +59,7 @@ const services = [
 
 const steps = [
   { n: "01", title: "Onboard in minutes", desc: "Add client, event type & package details fast." },
-  { n: "02", title: "Manage the workflow", desc: "Editing, selection, album design â€” one board." },
+  { n: "02", title: "Manage the workflow", desc: "Editing, selection, album design — one board." },
   { n: "03", title: "Get paid, get reports", desc: "Auto-invoices, dues & performance, at a glance." },
 ];
 
@@ -212,11 +212,11 @@ export default function GangaPhotoLanding() {
             Every Order.
             <br />
             <span style={{ backgroundImage: goldGradient, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-              Every Rupee â€” Tracked.
+              Every Rupee — Tracked.
             </span>
           </h1>
           <p style={{ color: colors.muted }} className="text-base md:text-lg mb-9 max-w-md">
-            One dashboard to manage bookings, edits, albums and payments â€” built for Indian photography studios.
+            One dashboard to manage bookings, edits, albums and payments — built for Indian photography studios.
           </p>
           <div className="flex flex-wrap gap-4">
             <SecondaryButton>
