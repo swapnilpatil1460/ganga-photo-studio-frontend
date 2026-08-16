@@ -12,6 +12,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [employeesList, setEmployeesList] = useState<any[]>([]);
+  const [availableServices, setAvailableServices] = useState<any[]>([]);
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -58,6 +59,17 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
       }
     } catch (err) {
       console.error('Error fetching employees:', err);
+    }
+
+    try {
+      const srvRes = await fetch((import.meta.env.VITE_API_URL || '') + `/api/services`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (srvRes.ok) {
+        setAvailableServices(await srvRes.json());
+      }
+    } catch (err) {
+      console.error('Error fetching services:', err);
     }
 
     setLoading(false);
@@ -206,24 +218,24 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                     required
                     className="search-input w-full appearance-none"
                     value={orderForm.service}
-                    onChange={e => setOrderForm({...orderForm, service: e.target.value})}
+                    onChange={e => {
+                      const selectedName = e.target.value;
+                      const svc = availableServices.find(s => s.name === selectedName);
+                      setOrderForm({
+                        ...orderForm, 
+                        service: selectedName,
+                        price: svc ? svc.basePrice : orderForm.price
+                      });
+                    }}
                   >
-                    <option value="Flex Printing">Flex Printing</option>
-                    <option value="Photographer Flex Printing">Photographer Flex Printing</option>
-                    <option value="Identity / Passport Photo">Identity / Passport Photo</option>
-                    <option value="Photography">Photography</option>
-                    <option value="CopingPhoto">CopingPhoto</option>
-                    <option value="Mobile Print">Mobile Print</option>
-                    <option value="Photo Dream">Photo Dream</option>
-                    <option value="Lamination">Lamination</option>
-                    <option value="Photo Album">Photo Album</option>
-                    <option value="Trophy">Trophy</option>
-                    <option value="Mug Printing">Mug Printing</option>
-                    <option value="Soft Copy/Digital Bord Photo">Soft Copy/Digital Bord Photo</option>
-                    <option value="Wedding Album">Wedding Album</option>
-                    <option value="Video Shooting">Video Shooting</option>
-                    <option value="Pre./After Wedding">Pre./After Wedding</option>
-                    <option value="Drone">Drone</option>
+                    <option value="" disabled>Select a service...</option>
+                    {availableServices.length > 0 ? (
+                      availableServices.map(s => (
+                        <option key={s._id} value={s.name}>{s.name}</option>
+                      ))
+                    ) : (
+                      <option value="Photography">Photography (Default)</option>
+                    )}
                   </select>
                 </div>
                 
