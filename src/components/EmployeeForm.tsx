@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Copy, Check } from 'lucide-react';
 
 interface EmployeeFormProps {
@@ -111,7 +111,11 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
         }
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.message || 'Failed to save employee. Please try again.');
+        if (data.errors && Array.isArray(data.errors)) {
+          setError(data.errors[0].msg);
+        } else {
+          setError(data.message || 'Failed to save employee. Please try again.');
+        }
       }
     } catch (err: any) {
       console.error('Error saving employee', err);
