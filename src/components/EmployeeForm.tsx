@@ -110,11 +110,11 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
           onClose();
         }
       } else {
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(() => ({ message: `Server error: HTTP ${res.status}` }));
         if (data.errors && Array.isArray(data.errors)) {
           setError(data.errors[0].msg);
         } else {
-          setError(data.message || 'Failed to save employee. Please try again.');
+          setError(data.message || `Failed to save employee. HTTP ${res.status}`);
         }
       }
     } catch (err: any) {
