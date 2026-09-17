@@ -18,10 +18,12 @@ const OrderDetails = () => {
 
   const fetchOrder = async () => {
     try {
-      const token = localStorage.getItem('token');
+
       const [orderRes, empRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
+        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}`, {
+      credentials: 'include', headers: {} }),
+        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, {
+      credentials: 'include', headers: { 'Cache-Control': 'no-cache' } })
       ]);
       
       if (orderRes.ok) {
@@ -49,13 +51,12 @@ const OrderDetails = () => {
     if (!selectedStatus || selectedStatus === order.status) return;
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('token');
+
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/status`, {
+      credentials: 'include',
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify({ status: selectedStatus, changedBy: 'Admin User' }) // Mock user
       });
       fetchOrder();
@@ -70,13 +71,12 @@ const OrderDetails = () => {
     if (!selectedEmployee || selectedEmployee === order.assignedEmployee) return;
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('token');
+
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/assign`, {
+      credentials: 'include',
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify({ employee: selectedEmployee, changedBy: 'Admin User' })
       });
       fetchOrder();
@@ -91,13 +91,12 @@ const OrderDetails = () => {
     if (!paymentAmount || isNaN(Number(paymentAmount)) || Number(paymentAmount) <= 0) return;
     setActionLoading(true);
     try {
-      const token = localStorage.getItem('token');
+
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${id}/payment`, {
+      credentials: 'include',
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify({ amount: Number(paymentAmount), changedBy: 'Owner' })
       });
       setPaymentAmount('');

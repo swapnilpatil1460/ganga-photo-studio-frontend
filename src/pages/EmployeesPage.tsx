@@ -27,9 +27,10 @@ const EmployeesPage = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/employees', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const result = await res.json();

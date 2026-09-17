@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -7,11 +7,10 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-  const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   
-  if (!token) {
-    return <Navigate to="/admin/login" replace />;
+  if (!role) {
+    return <Navigate to="/" replace />;
   }
 
   if (allowedRoles && role && !allowedRoles.includes(role)) {

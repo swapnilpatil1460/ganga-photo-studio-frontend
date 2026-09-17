@@ -14,9 +14,10 @@ const CustomerDetails = () => {
 
   const fetchCustomer = async () => {
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const data = await res.json();

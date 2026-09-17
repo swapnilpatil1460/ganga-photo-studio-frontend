@@ -9,9 +9,7 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const authHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('token')}`
-});
+  'Content-Type': 'application/json',});
 
 // ── SidebarItem ──────────────────────────────────────────────────────────────
 const SidebarItem = ({ icon, label, path, onClick }: { icon: React.ReactNode; label: string; path: string; onClick?: () => void }) => {
@@ -38,7 +36,8 @@ const NotificationPanel = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch(`${API_BASE}/orders?limit=8&page=1`, { headers: authHeaders() });
+        const res = await fetch(`${API_BASE}/orders?limit=8&page=1`, {
+      credentials: 'include', headers: authHeaders() });
         const data = await res.json();
         setNotifications(data.data || []);
       } catch {
@@ -106,7 +105,8 @@ const CalendarPanel = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const res = await fetch(`${API_BASE}/schedule?page=1&limit=50`, { headers: authHeaders() });
+        const res = await fetch(`${API_BASE}/schedule?page=1&limit=50`, {
+      credentials: 'include', headers: authHeaders() });
         const data = await res.json();
         const upcoming = (data.data || []).filter((s: any) => s.date >= today).slice(0, 6);
         setSchedules(upcoming);
@@ -192,8 +192,10 @@ const SearchDropdown = ({ query, onClose }: { query: string; onClose: () => void
       setLoading(true);
       try {
         const [oRes, cRes] = await Promise.all([
-          fetch(`${API_BASE}/orders?search=${encodeURIComponent(query)}&limit=4`, { headers: authHeaders() }),
-          fetch(`${API_BASE}/customers?name=${encodeURIComponent(query)}&limit=4`, { headers: authHeaders() })
+          fetch(`${API_BASE}/orders?search=${encodeURIComponent(query)}&limit=4`, {
+      credentials: 'include', headers: authHeaders() }),
+          fetch(`${API_BASE}/customers?name=${encodeURIComponent(query)}&limit=4`, {
+      credentials: 'include', headers: authHeaders() })
         ]);
         const oData = await oRes.json();
         const cData = await cRes.json();
@@ -268,7 +270,12 @@ const Dashboard = () => {
     localStorage.setItem('themeMode', next ? 'dark' : 'light');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.error('Logout failed:', e);
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     navigate('/');

@@ -93,11 +93,10 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
       }
 
       const res = await fetch(url, {
+      credentials: 'include',
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify(payload)
       });
       
@@ -127,7 +126,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
 
   const handleCopy = () => {
     if (generatedCredentials) {
-      navigator.clipboard.writeText(`Email: ${generatedCredentials.email}\nPassword: ${generatedCredentials.password}`);
+      navigator.clipboard.writeText(generatedCredentials.email);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -167,7 +166,7 @@ export default function EmployeeForm({ employee, onClose, onSave }: EmployeeForm
                 onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--theme-border)'}
                 onMouseOut={e => e.currentTarget.style.backgroundColor = 'var(--theme-bg)'}
               >
-                {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+                {copied ? <><Check size={14} /> Copied Email</> : <><Copy size={14} /> Copy Email</>}
               </button>
             </div>
           </div>

@@ -45,10 +45,11 @@ export default function EmployeeDetails() {
   const handleResetPassword = async () => {
     setResetting(true);
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/password`, {
+      credentials: 'include',
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {}
       });
       const data = await res.json();
       if (res.ok) {
@@ -68,13 +69,16 @@ export default function EmployeeDetails() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { 'Authorization': `Bearer ${token}` };
+
+        const headers = {};
         
         const [empRes, actRes, dashRes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/activities`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/dashboard`, { headers })
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}`, {
+      credentials: 'include', headers }),
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/activities`, {
+      credentials: 'include', headers }),
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/dashboard`, {
+      credentials: 'include', headers })
         ]);
 
         if (empRes.ok) setEmployee(await empRes.json());
@@ -310,14 +314,14 @@ export default function EmployeeDetails() {
                 
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(`Email: ${newCredentials.email}\nPassword: ${newCredentials.password}`);
+                    navigator.clipboard.writeText(newCredentials.email);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
                   className="absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors"
                   style={{ backgroundColor: 'var(--theme-bg)', color: copied ? '#22c55e' : 'var(--theme-text-muted)', border: '1px solid var(--theme-border)' }}
                 >
-                  {copied ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+                  {copied ? <><CheckCircle size={14} /> Copied Email</> : <><Copy size={14} /> Copy Email</>}
                 </button>
               </div>
             </div>

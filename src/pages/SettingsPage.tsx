@@ -27,9 +27,10 @@ const SettingsPage = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const token = localStorage.getItem('token');
+
         const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
-          headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+          headers: {}
         });
         if (res.ok) {
           const data = await res.json();
@@ -57,11 +58,11 @@ const SettingsPage = () => {
     setTheme(newTheme);
     localStorage.setItem('themePreference', newTheme);
     try {
-      const token = localStorage.getItem('token');
+
       await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
+      credentials: 'include',
         method: 'PUT',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
+        headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ theme: newTheme })
@@ -74,11 +75,11 @@ const SettingsPage = () => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings', {
+      credentials: 'include',
         method: 'PUT',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
+        headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

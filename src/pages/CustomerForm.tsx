@@ -26,9 +26,10 @@ const CustomerForm = () => {
     if (isEdit) {
       const fetchCustomer = async () => {
         try {
-          const token = localStorage.getItem('token');
+
           const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+            headers: {}
           });
           if (res.ok) {
             const data = await res.json();
@@ -63,16 +64,15 @@ const CustomerForm = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+
       const url = isEdit ? `${import.meta.env.VITE_API_URL || ''}/api/customers/${id}` : (import.meta.env.VITE_API_URL || '') + '/api/customers';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
+      credentials: 'include',
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify(formData)
       });
 

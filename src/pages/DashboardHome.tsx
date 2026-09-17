@@ -15,9 +15,10 @@ const DashboardHome = () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (!res.ok) throw new Error('Failed to load dashboard data');
       const json = await res.json();

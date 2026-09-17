@@ -45,11 +45,10 @@ export default function ServiceForm({ service, onClose, onSave }: ServiceFormPro
       };
 
       const res = await fetch(url, {
+      credentials: 'include',
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify(payload)
       });
       

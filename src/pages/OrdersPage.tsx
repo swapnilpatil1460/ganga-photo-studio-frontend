@@ -43,8 +43,8 @@ const OrdersPage = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const headers = { 'Authorization': `Bearer ${token}` };
+
+      const headers = {};
 
       // Build query string
       const params = new URLSearchParams();
@@ -55,9 +55,12 @@ const OrdersPage = () => {
       if (dateRange.end) params.append('endDate', dateRange.end);
 
       const [ordersRes, analyticsRes, empRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?${params.toString()}`, { headers }),
-        fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', { headers }),
-        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, { headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' } })
+        fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?${params.toString()}`, {
+      credentials: 'include', headers }),
+        fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', {
+      credentials: 'include', headers }),
+        fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, {
+      credentials: 'include', headers: { 'Cache-Control': 'no-cache' } })
       ]);
 
       if (ordersRes.ok) {

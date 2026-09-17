@@ -31,7 +31,7 @@ const Customers = () => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+
       let url = `${import.meta.env.VITE_API_URL || ''}/api/customers?page=${page}&limit=${limit}`;
       
       if (search) {
@@ -48,7 +48,8 @@ const Customers = () => {
       }
 
       const res = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const result = await res.json();
@@ -72,11 +73,12 @@ const Customers = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this customer?')) return;
-    const token = localStorage.getItem('token');
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
+      credentials: 'include',
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {}
       });
       if (res.ok) {
         fetchCustomers();

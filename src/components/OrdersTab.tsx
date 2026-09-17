@@ -29,12 +29,13 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
   });
 
   const fetchOrders = async () => {
-    const token = localStorage.getItem('token');
+
     
     // Fetch orders and employees independently so one failure doesn't block the other
     try {
       const res = await fetch((import.meta.env.VITE_API_URL || '') + `/api/orders/customer/${customerId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const result = await res.json();
@@ -48,7 +49,8 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
 
     try {
       const empRes = await fetch((import.meta.env.VITE_API_URL || '') + `/api/employees?limit=100&t=${Date.now()}`, {
-        headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' }
+      credentials: 'include',
+        headers: { 'Cache-Control': 'no-cache' }
       });
       if (empRes.ok) {
         const result = await empRes.json();
@@ -63,7 +65,8 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
 
     try {
       const srvRes = await fetch((import.meta.env.VITE_API_URL || '') + `/api/services`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (srvRes.ok) {
         setAvailableServices(await srvRes.json());
@@ -83,13 +86,12 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
     e.preventDefault();
     setSavingOrder(true);
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders', {
+      credentials: 'include',
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify({
           ...orderForm,
           totalAmount: orderForm.quantity * orderForm.price
@@ -259,7 +261,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                     type="number" min="1" required
                     className="search-input w-full"
                     value={orderForm.quantity}
-                    onChange={e => setOrderForm({...orderForm, quantity: Number(e.target.value)})}
+                    onChange={e => setOrderForm({...orderForm, quantity: Math.max(1, Math.floor(Number(e.target.value) || 1))})}
                   />
                 </div>
 
@@ -269,7 +271,7 @@ const OrdersTab = ({ customerId, onOrderCreated }: OrdersTabProps) => {
                     type="number" min="0" required
                     className="search-input w-full"
                     value={orderForm.price}
-                    onChange={e => setOrderForm({...orderForm, price: Number(e.target.value)})}
+                    onChange={e => setOrderForm({...orderForm, price: Math.max(0, Number(e.target.value) || 0)})}
                   />
                 </div>
 

@@ -3,7 +3,7 @@ import { Database, Download, Calendar, Users, AlertTriangle } from 'lucide-react
 
 const BackupPage = () => {
   const role = localStorage.getItem('role');
-  const token = localStorage.getItem('token');
+
   
   const [customerDateRange, setCustomerDateRange] = useState({
     start: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
@@ -27,7 +27,8 @@ const BackupPage = () => {
     setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z&limit=10000`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (!res.ok) throw new Error("Failed to fetch data");
       const result = await res.json();
@@ -89,7 +90,8 @@ const BackupPage = () => {
     setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees?limit=10000`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (!res.ok) throw new Error("Failed to fetch employees");
       const result = await res.json();
@@ -122,7 +124,8 @@ const BackupPage = () => {
     setLoading(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/schedule?limit=10000`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (!res.ok) throw new Error("Failed to fetch schedule");
       const scheduleResult = await res.json();

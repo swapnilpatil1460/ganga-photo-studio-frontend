@@ -50,9 +50,10 @@ export default function SchedulePage() {
 
   const fetchEvents = async () => {
     try {
-      const token = localStorage.getItem('token');
+
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/schedule?limit=500', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const result = await res.json();
@@ -114,16 +115,15 @@ export default function SchedulePage() {
     }
     
     try {
-      const token = localStorage.getItem('token');
+
       const url = mode === 'add' ? (import.meta.env.VITE_API_URL || '') + '/api/schedule' : `${import.meta.env.VITE_API_URL || ''}/api/schedule/${form.id}`;
       const method = mode === 'add' ? 'POST' : 'PUT';
       
       const res = await fetch(url, {
+      credentials: 'include',
         method,
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
+          'Content-Type': 'application/json',},
         body: JSON.stringify(form)
       });
       
@@ -143,10 +143,11 @@ export default function SchedulePage() {
 
   async function deleteEvent() { 
     try {
-      const token = localStorage.getItem('token');
+
       await fetch(`${import.meta.env.VITE_API_URL || ''}/api/schedule/${modal.form.id}`, {
+      credentials: 'include',
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {}
       });
       fetchEvents();
       closeModal();

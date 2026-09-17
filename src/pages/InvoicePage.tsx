@@ -41,16 +41,18 @@ const InvoicePage = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const token = localStorage.getItem('token');
+
         const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders/${orderId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+          headers: {}
         });
         if (res.ok) {
           const data = await res.json();
           // Mock data handling for customer if not populated
           if (!data.customer || typeof data.customer === 'string') {
             const cRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${data.customer}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
+      credentials: 'include',
+              headers: {}
             });
             if (cRes.ok) {
               data.customer = await cRes.json();

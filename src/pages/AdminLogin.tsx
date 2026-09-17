@@ -20,6 +20,7 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       const response = await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/login', {
+      credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +31,7 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
+        
         localStorage.setItem('role', data.user.role);
         navigate('/dashboard');
       } else {

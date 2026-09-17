@@ -16,9 +16,8 @@ const PricingPage = () => {
     setLoading(true);
     try {
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/services', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      credentials: 'include',
+        headers: {}
       });
       if (res.ok) {
         const data = await res.json();
@@ -43,10 +42,9 @@ const PricingPage = () => {
     
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/services/${id}`, {
+      credentials: 'include',
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {}
       });
       
       if (res.ok) {

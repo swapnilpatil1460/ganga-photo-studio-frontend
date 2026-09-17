@@ -26,9 +26,8 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      credentials: 'include',
+        headers: {}
       });
       if (!res.ok) throw new Error('Failed to fetch users');
       const data = await res.json();
@@ -50,10 +49,9 @@ export default function UsersPage() {
     setDeletingId(confirmDeleteId);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${confirmDeleteId}`, {
+      credentials: 'include',
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {}
       });
       
       if (!res.ok) throw new Error('Failed to delete user');
@@ -73,10 +71,9 @@ export default function UsersPage() {
     setResettingId(resetConfirmId);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${resetConfirmId}/password`, {
+      credentials: 'include',
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {}
       });
       
       const data = await res.json();
@@ -297,13 +294,13 @@ export default function UsersPage() {
                 
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(`Email: ${newCredentials.email}\nPassword: ${newCredentials.password}`);
+                    navigator.clipboard.writeText(newCredentials.email);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
                   className={`absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors border ${copied ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
                 >
-                  {copied ? <><CheckCircle size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+                  {copied ? <><CheckCircle size={14} /> Copied Email</> : <><Copy size={14} /> Copy Email</>}
                 </button>
               </div>
             </div>
