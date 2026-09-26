@@ -61,6 +61,12 @@ export default function EmployeeSalaryPage() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [transactionRef, setTransactionRef] = useState('');
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -121,19 +127,19 @@ export default function EmployeeSalaryPage() {
       if (res.ok) {
         const data = await res.json();
         setCurrentRecord(data);
-        alert('Salary calculated successfully!');
+        showNotification('Salary calculated successfully!');
       } else {
-        alert('Failed to calculate salary');
+        showNotification('Failed to calculate salary', 'error');
       }
     } catch (err) {
       console.error(err);
-      alert('Error calculating salary');
+      showNotification('Error calculating salary', 'error');
     }
   };
 
   const openPaymentModal = () => {
     if (!currentRecord || currentRecord.status !== 'Calculated') {
-      alert('Must calculate salary first before paying.');
+      showNotification('Must calculate salary first before paying.', 'error');
       return;
     }
     setTransactionRef('');
@@ -153,11 +159,11 @@ export default function EmployeeSalaryPage() {
         setCurrentRecord(data);
         setShowPaymentModal(false);
       } else {
-        alert('Failed to mark as paid');
+        showNotification('Failed to mark as paid', 'error');
       }
     } catch (err) {
       console.error(err);
-      alert('Error processing payment');
+      showNotification('Error processing payment', 'error');
     }
   };
 
@@ -384,6 +390,16 @@ export default function EmployeeSalaryPage() {
                 <CheckCircle size={18} /> Confirm Payment
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {notification && (
+        <div className="fixed bottom-6 right-6 animate-slide-up z-50">
+          <div className={`flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white font-medium ${notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+            {notification.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            {notification.message}
           </div>
         </div>
       )}
