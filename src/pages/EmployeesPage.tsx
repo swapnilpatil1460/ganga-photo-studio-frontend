@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Search, Loader, AlertCircle, Edit, ExternalLink, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, UserPlus, Search, Loader, AlertCircle, Edit, ExternalLink, RefreshCw, IndianRupee } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import EmployeeForm from '../components/EmployeeForm';
 
@@ -93,7 +93,7 @@ const EmployeesPage = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Employee List</h1>
+        <h1 className="page-title">Employee Management</h1>
         <button 
           onClick={handleAdd}
           className="btn-primary flex items-center gap-2"
@@ -105,16 +105,14 @@ const EmployeesPage = () => {
 
       <div className="table-controls flex-col md:flex-row flex justify-between items-center mb-6">
         <div className="flex gap-4 flex-1 w-full md:w-auto">
-          <div className="search-wrapper flex-1 max-w-md">
-            <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search by name or role..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="search-input"
-            />
-          </div>
+          <button 
+            onClick={() => navigate('/dashboard/salary')} 
+            className="btn-outline flex items-center gap-2"
+            style={{ borderColor: 'var(--theme-accent)', color: 'var(--theme-accent)' }}
+          >
+            <IndianRupee size={18} />
+            Salary Management
+          </button>
         </div>
         
         <button className="btn-outline flex items-center gap-2 mt-4 md:mt-0" onClick={() => { setSearch(''); fetchEmployees(); }}>
@@ -217,3 +215,6 @@ const EmployeesPage = () => {
 };
 
 export default EmployeesPage;
+
+
+
