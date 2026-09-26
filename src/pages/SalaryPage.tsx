@@ -85,12 +85,20 @@ export default function SalaryPage() {
       case 'Paid': 
         return (
           <div className="flex flex-col items-start gap-1">
-            <span className="px-2 py-1 text-xs font-medium rounded-md bg-green-100 text-green-800 border border-green-200">Paid</span>
-
+            <span className="px-3 py-1 text-sm font-bold rounded-md bg-green-100 text-green-800 border border-green-200">
+              Paid
+            </span>
+            {record.paymentDetails?.paymentDate && (
+              <span className="text-sm font-semibold text-[var(--theme-text)] whitespace-nowrap">
+                {new Date(record.paymentDetails.paymentDate).toLocaleDateString('en-GB')}
+              </span>
+            )}
           </div>
         );
-      case 'Calculated': return <span className="px-2 py-1 text-xs font-medium rounded-md bg-blue-100 text-blue-800 border border-blue-200">Calculated</span>;
-      default: return <span className="px-2 py-1 text-xs font-medium rounded-md bg-amber-100 text-amber-800 border border-amber-200">Pending</span>;
+      case 'Calculated': 
+        return <span className="px-3 py-1 text-sm font-bold rounded-md bg-blue-100 text-blue-800 border border-blue-200">Calculated</span>;
+      default: 
+        return <span className="px-3 py-1 text-sm font-bold rounded-md bg-amber-100 text-amber-800 border border-amber-200">Pending</span>;
     }
   };
 
@@ -173,13 +181,13 @@ export default function SalaryPage() {
                         <div className="text-sm">P: {record.attendance?.present || 0} / {record.attendance?.workingDays || 0}</div>
                         <div className="text-xs text-red-500">A: {record.attendance?.absent || 0}</div>
                       </td>
-                      <td className="font-medium text-gray-400">
+                      <td className="font-semibold text-base" style={{ color: 'var(--theme-text)' }}>
                         ₹{net.toLocaleString()}
                       </td>
-                      <td className="font-medium text-green-500">
+                      <td className="font-semibold text-base text-green-500">
                         ₹{paidAmount.toLocaleString()}
                       </td>
-                      <td className="font-medium text-orange-400">
+                      <td className="font-semibold text-base text-orange-400">
                         ₹{unpaidAmount.toLocaleString()}
                       </td>
                       <td>{getStatusBadge(record)}</td>
