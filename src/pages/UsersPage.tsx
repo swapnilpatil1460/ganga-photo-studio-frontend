@@ -8,12 +8,35 @@ interface UserData {
   role: string;
   isOnline?: boolean;
   lastActiveAt?: string;
+  lastLoginAt?: string;
 }
 
 export default function UsersPage() {
   const { theme } = useOutletContext<{ theme: string }>();
   const isDark = theme === 'theme-dashboard';
   const [users, setUsers] = useState<UserData[]>([]);
+
+  const formatPresenceDuration = (isOnline?: boolean, lastLoginAt?: string, lastActiveAt?: string) => {
+    const isActuallyOnline = !!(isOnline && lastActiveAt && new Date().getTime() - new Date(lastActiveAt).getTime() < 3 * 60 * 1000);
+    const timestamp = isActuallyOnline ? (lastLoginAt || lastActiveAt) : lastActiveAt;
+    if (!timestamp) return isActuallyOnline ? 'online' : 'from offline';
+    
+    const diff = Math.max(0, Date.now() - new Date(timestamp).getTime());
+    const mins = Math.floor(diff / (60 * 1000));
+    
+    let timeStr = '';
+    if (mins < 1) timeStr = 'just now';
+    else if (mins < 60) timeStr = `${mins}m`;
+    else {
+      const hours = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      if (hours < 24) timeStr = remMins > 0 ? `${hours}hr ${remMins}m` : `${hours}hr`;
+      else timeStr = `${Math.floor(hours / 24)}d`;
+    }
+
+    return isActuallyOnline ? `${timeStr} online` : `${timeStr} from offline`;
+  };
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -185,10 +208,17 @@ export default function UsersPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <div className={"w-2 h-2 rounded-full ${user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-500'}"} />
-                        <span className={"text-xs font-medium ${user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'text-green-500' : 'text-gray-500'}"}>
-                          {user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'Online' : 'Offline'}
-                        </span>
+                        {user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/30 shadow-[0_0_8px_rgba(34,197,94,0.15)]">
+                            <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)] animate-pulse" />
+                            Online &bull; {formatPresenceDuration(user.isOnline, user.lastLoginAt, user.lastActiveAt)}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-600/30">
+                            <span className="w-2 h-2 rounded-full bg-gray-500" />
+                            Offline &bull; {formatPresenceDuration(user.isOnline, user.lastLoginAt, user.lastActiveAt)}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="p-4 group">

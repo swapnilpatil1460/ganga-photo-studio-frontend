@@ -31,6 +31,33 @@ interface DashboardMetrics {
 export default function EmployeeDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const formatPresenceDuration = (isOnline?: boolean, lastLoginAt?: string, lastActiveAt?: string) => {
+    const timestamp = isOnline ? (lastLoginAt || lastActiveAt) : lastActiveAt;
+    if (!timestamp) return isOnline ? 'online' : 'from offline';
+    
+    const diff = Math.max(0, Date.now() - new Date(timestamp).getTime());
+    const mins = Math.floor(diff / (60 * 1000));
+    
+    let timeStr = '';
+    if (mins < 1) {
+      timeStr = 'just now';
+    } else if (mins < 60) {
+      timeStr = `${mins}m`;
+    } else {
+      const hours = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      if (hours < 24) {
+        timeStr = remMins > 0 ? `${hours}hr ${remMins}m` : `${hours}hr`;
+      } else {
+        const days = Math.floor(hours / 24);
+        timeStr = `${days}d`;
+      }
+    }
+
+    return isOnline ? `${timeStr} online` : `${timeStr} from offline`;
+  };
+
   
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [activities, setActivities] = useState<ActivityLog[]>([]);

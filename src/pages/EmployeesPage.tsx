@@ -14,6 +14,7 @@ interface Employee {
   photo?: string;
   isOnline?: boolean;
   lastActiveAt?: string;
+  lastLoginAt?: string;
 }
 
 const EmployeesPage = () => {
@@ -25,6 +26,39 @@ const EmployeesPage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   
   const navigate = useNavigate();
+
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick(t => t + 1), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatPresenceDuration = (isOnline?: boolean, lastLoginAt?: string, lastActiveAt?: string) => {
+    const timestamp = isOnline ? (lastLoginAt || lastActiveAt) : lastActiveAt;
+    if (!timestamp) return isOnline ? 'online' : 'from offline';
+    
+    const diff = Math.max(0, Date.now() - new Date(timestamp).getTime());
+    const mins = Math.floor(diff / (60 * 1000));
+    
+    let timeStr = '';
+    if (mins < 1) {
+      timeStr = 'just now';
+    } else if (mins < 60) {
+      timeStr = `${mins}m`;
+    } else {
+      const hours = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      if (hours < 24) {
+        timeStr = remMins > 0 ? `${hours}hr ${remMins}m` : `${hours}hr`;
+      } else {
+        const days = Math.floor(hours / 24);
+        timeStr = `${days}d`;
+      }
+    }
+
+    return isOnline ? `${timeStr} online` : `${timeStr} from offline`;
+  };
+
 
   const fetchEmployees = async () => {
     setLoading(true);
@@ -172,14 +206,7 @@ const EmployeesPage = () => {
                         />
                       </div>
                       <div>
-                        <div className="font-medium flex items-center gap-2" style={{ color: 'var(--theme-text)' }}>
-                          <span>{emp.name}</span>
-                          {emp.isOnline && (
-                            <span className="px-1.5 py-0.2 text-[10px] font-semibold rounded bg-green-500/10 text-green-400 border border-green-500/20">
-                              Online
-                            </span>
-                          )}
-                        </div>
+                        <div className="font-medium" style={{ color: 'var(--theme-text)' }}>{emp.name}</div>
                         <div className="text-xs font-mono" style={{ color: 'var(--theme-text-muted)' }}>ID: {emp._id.substring(0,6)}</div>
                       </div>
                     </div>
@@ -194,13 +221,25 @@ const EmployeesPage = () => {
                     <div className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>{emp.email}</div>
                   </td>
                   <td>
-                    <div className="flex flex-col gap-1 items-start">
-                      {getStatusBadge(emp.status)}
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${emp.isOnline ? 'text-green-400' : 'text-gray-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${emp.isOnline ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]' : 'bg-gray-500'}`} />
-                        {emp.isOnline ? 'Online now' : 'Offline'}
-                      </span>
-                    </div>
+                    {emp.status === 'Active' ? (
+                      <div 
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                          emp.isOnline 
+                            ? 'bg-green-500/10 text-green-400 border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.15)]' 
+                            : 'bg-gray-500/10 text-gray-400 border-gray-600/30'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${emp.isOnline ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.9)] animate-pulse' : 'bg-gray-500'}`} />
+                        <span>ACTIVE &bull; {formatPresenceDuration(emp.isOnline, emp.lastLoginAt, emp.lastActiveAt)}</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-1 items-start">
+                        {getStatusBadge(emp.status)}
+                        <span className="text-[11px] text-gray-500">
+                          {formatPresenceDuration(emp.isOnline, emp.lastLoginAt, emp.lastActiveAt)}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>
                     {new Date(emp.dateJoined).toLocaleDateString()}
