@@ -267,20 +267,26 @@ export default function EmployeeSalaryPage() {
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
                   const status = attendance.leaveMap?.[day];
-                  let bg = 'bg-gray-100 dark:bg-gray-800 text-[var(--theme-text)]';
-                  if (status === 'A') bg = 'bg-red-500 text-white';
-                  if (status === 'PL') bg = 'bg-green-500 text-white';
-                  if (status === 'UL') bg = 'bg-orange-500 text-white';
+                  let bg = 'bg-gray-200 text-gray-800'; // Default light gray with dark text
+                  let border = 'border border-gray-300';
+                  
+                  if (status === 'A') { bg = 'bg-red-500 text-white'; border = 'border-red-600'; }
+                  if (status === 'PL') { bg = 'bg-green-500 text-white'; border = 'border-green-600'; }
+                  if (status === 'UL') { bg = 'bg-orange-500 text-white'; border = 'border-orange-600'; }
+                  
+                  // For dark theme compatibility if we want to rely on variables:
+                  // Actually, hardcoding gray-200 is perfectly readable in both themes for a small calendar grid, 
+                  // but we can use inline styles to be perfectly safe against global css.
+                  
                   return (
-                    <button 
+                    <div 
                       key={day} 
                       onClick={() => toggleLeave(day)}
-                      disabled={isReadOnly}
-                      className={`h-8 rounded text-xs font-medium flex items-center justify-center transition-colors ${bg} hover:opacity-80`}
+                      className={`h-8 rounded text-xs font-bold flex items-center justify-center transition-colors cursor-pointer ${bg} ${border} hover:opacity-80`}
                       title={status === 'A' ? 'Absent' : status === 'PL' ? 'Paid Leave' : status === 'UL' ? 'Unpaid Leave' : 'Present'}
                     >
                       {day}
-                    </button>
+                    </div>
                   );
                 })}
               </div>
