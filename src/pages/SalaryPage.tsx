@@ -86,11 +86,7 @@ export default function SalaryPage() {
         return (
           <div className="flex flex-col items-start gap-1">
             <span className="px-2 py-1 text-xs font-medium rounded-md bg-green-100 text-green-800 border border-green-200">Paid</span>
-            {record.paymentDetails?.paymentDate && (
-              <span className="text-xs text-[var(--theme-text-muted)]">
-                {new Date(record.paymentDetails.paymentDate).toLocaleDateString()}
-              </span>
-            )}
+
           </div>
         );
       case 'Calculated': return <span className="px-2 py-1 text-xs font-medium rounded-md bg-blue-100 text-blue-800 border border-blue-200">Calculated</span>;
@@ -138,54 +134,70 @@ export default function SalaryPage() {
         </div>
       </div>
 
-      <div className="table-container">
-        {loading ? (
-          <div className="p-8 text-center text-gray-600">Loading records...</div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12" style={{ color: 'var(--theme-text-muted)' }}>
-            <AlertCircle size={32} className="mb-2 opacity-50" />
-            <p className="text-lg">No records found for {selectedMonth}.</p>
-          </div>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Employee</th>
-                <th>Designation</th>
-                <th>Attendance</th>
-                <th>Net Salary</th>
-                <th>Status</th>
-                <th className="text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(record => (
-                <tr key={record._id} className="hover:bg-gray-50/5 cursor-pointer" onClick={() => navigate(`/dashboard/salary/employee/${record.employeeId._id}?month=${selectedMonth}`)}>
-                  <td>
-                    <div className="font-medium" style={{ color: 'var(--theme-text)' }}>{record.employeeId?.name || 'Unknown'}</div>
-                    <div className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>{record.employeeId?.email}</div>
-                  </td>
-                  <td style={{ color: 'var(--theme-text-muted)' }}>{record.employeeId?.role}</td>
-                  <td>
-                    <div className="text-sm">P: {record.attendance.present} / {record.attendance.workingDays}</div>
-                    <div className="text-xs text-red-500">A: {record.attendance.absent}</div>
-                  </td>
-                  <td className="font-medium">
-                    ₹{record.components.netSalary.toLocaleString()}
-                  </td>
-                  <td>{getStatusBadge(record)}</td>
-                  <td className="text-right">
-                    <button className="icon-btn text-[var(--theme-accent)]">
-                      <ExternalLink size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              <div className="table-container">
+          {loading ? (
+            <div className="p-8 text-center text-gray-600">Loading records...</div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12" style={{ color: 'var(--theme-text-muted)' }}>
+              <AlertCircle size={32} className="mb-2 opacity-50" />
+              <p className="text-lg">No records found for {selectedMonth}.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-8 bg-transparent p-0 border-0 shadow-none">
+              
+              {/* Unpaid Section */}
+              {(() => {
+                const unpaid = filtered.filter(r => r.status !== 'Paid');
+                const remainingTotal = unpaid.reduce((sum, r) => sum + (r.components?.netSalary || 0), 0);
+                if (unpaid.length === 0) return null;
+                
+                return (
+                  <div className="dashboard-card" style={{ padding: '24px' }}>
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-lg font-bold" style={{ color: 'var(--theme-text)' }}>Unpaid Salaries</h3>
+                      <div className="px-4 py-2 rounded-lg bg-orange-100 text-orange-800 font-bold border border-orange-200">
+                        Total Remaining: ₹{remainingTotal.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="table-container shadow-none border-0 overflow-visible p-0" style={{ background: 'transparent' }}>
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Employee</th>
+                            <th>Designation</th>
+                            <th>Attendance</th>
+                            <th>Net Salary</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {unpaid.map(record => (
+                            <tr key={record._id} className="hover:bg-gray-50/5 cursor-pointer transition-colors" onClick={() => navigate(`/dashboard/salary/employee/${record.employeeId._id}?month=${selectedMonth}`)}>
+                              <td>
+                                <div className="font-medium" style={{ color: 'var(--theme-text)' }}>{record.employeeId?.name || 'Unknown'}</div>
+                                <div className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>{record.employeeId?.email}</div>
+                              </td>
+                              <td style={{ color: 'var(--theme-text-muted)' }}>{record.employeeId?.role}</td>
+                              <td>
+                                <div className="text-sm">P: {record.attendance?.present || 0} / {record.attendance?.workingDays || 0}</div>
+                                <div className="text-xs text-red-500">A: {record.attendance?.absent || 0}</div>
+                              </td>
+                              <td className="font-medium">
+                                ₹{(record.components?.netSalary || 0).toLocaleString()}
+                              </td>
+                              <td>{getStatusBadge(record)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
   );
 }
 
