@@ -97,6 +97,13 @@ export default function EmployeeSalaryPage() {
   }, [id, monthParam]);
 
   const handleCalculate = async () => {
+    let leaveDeduction = 0;
+    if (attendance.workingDays > 0) {
+      const perDaySalary = Number(components.basicSalary) / attendance.workingDays;
+      const unpaidDays = Number(attendance.absent) + Number(attendance.unpaidLeave);
+      leaveDeduction = Math.round(unpaidDays * perDaySalary);
+    }
+    
     try {
       const res = await fetch(`${API_BASE}/salary/calculate`, {
         method: 'POST',
@@ -106,7 +113,7 @@ export default function EmployeeSalaryPage() {
           employeeId: id,
           month: monthParam,
           attendance,
-          components
+          components: { ...components, leaveDeduction }
         })
       });
       if (res.ok) {
@@ -152,8 +159,17 @@ export default function EmployeeSalaryPage() {
   if (!employee) return <div className="p-8 text-center text-[var(--theme-text-muted)]">Employee not found.</div>;
 
   const isReadOnly = currentRecord?.status === 'Paid';
-  const gross = Number(components.basicSalary) + Number(components.allowances) + Number(components.overtime) + Number(components.incentive) + Number(components.otherEarnings);
-  const totalDeductions = Number(components.deductions) + Number(components.advanceRecovery);
+  const gross = Number(components.basicSalary) + Number(components.otherEarnings);
+  
+  // Calculate Leave Deductions automatically based on attendance
+  let leaveDeduction = 0;
+  if (attendance.workingDays > 0) {
+    const perDaySalary = Number(components.basicSalary) / attendance.workingDays;
+    const unpaidDays = Number(attendance.absent) + Number(attendance.unpaidLeave);
+    leaveDeduction = Math.round(unpaidDays * perDaySalary);
+  }
+
+  const totalDeductions = Number(components.deductions) + Number(components.advanceRecovery) + leaveDeduction;
   const net = gross - totalDeductions;
 
   return (
@@ -200,16 +216,8 @@ export default function EmployeeSalaryPage() {
                 <input type="number" value={components.basicSalary} onChange={e => setComponents({...components, basicSalary: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
               <div className="form-group">
-                <label>Allowances (₹)</label>
-                <input type="number" value={components.allowances} onChange={e => setComponents({...components, allowances: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
-              </div>
-              <div className="form-group">
-                <label>Overtime (₹)</label>
-                <input type="number" value={components.overtime} onChange={e => setComponents({...components, overtime: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
-              </div>
-              <div className="form-group">
-                <label>Incentives (₹)</label>
-                <input type="number" value={components.incentive} onChange={e => setComponents({...components, incentive: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
+                <label>Other Earnings (₹)</label>
+                <input type="number" value={components.otherEarnings} onChange={e => setComponents({...components, otherEarnings: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
             </div>
 
@@ -228,7 +236,8 @@ export default function EmployeeSalaryPage() {
             <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-lg mb-6">
               <div>
                 <div className="text-sm text-[var(--theme-text-muted)]">Gross: ₹{gross.toLocaleString()}</div>
-                <div className="text-sm text-[var(--theme-text-muted)]">Deductions: ₹{totalDeductions.toLocaleString()}</div>
+                <div className="text-sm text-red-500/80">Leave Deduction: -₹{leaveDeduction.toLocaleString()}</div>
+                <div className="text-sm text-[var(--theme-text-muted)]">Other Deductions: ₹{(Number(components.deductions) + Number(components.advanceRecovery)).toLocaleString()}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Net Salary</div>
