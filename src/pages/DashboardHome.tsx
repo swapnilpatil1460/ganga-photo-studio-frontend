@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Camera, Users, IndianRupee, ShoppingCart, RefreshCw, AlertCircle } from 'lucide-react';
 import SummaryCard from '../components/Charts/SummaryCard';
 import RevenueChart from '../components/Charts/RevenueChart';
@@ -15,9 +15,8 @@ const DashboardHome = () => {
     setLoading(true);
     setError(null);
     try {
-
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', {
-      credentials: 'include',
+        credentials: 'include',
         headers: {}
       });
       if (!res.ok) throw new Error('Failed to load dashboard data');
@@ -41,15 +40,15 @@ const DashboardHome = () => {
 
   return (
     <div style={{ minHeight: "100%", padding: "0" }}>
-      {/* Header section matching Kallyankar structure but Ganga theme */}
+      {/* Header section */}
       <div style={{
-        background: "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)",
+        background: "var(--theme-header-bg, linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%))",
         padding: "24px 32px",
-        borderBottom: "1px solid #333",
+        borderBottom: "1px solid var(--theme-header-border, #333)",
         display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px"
       }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: "24px", fontWeight: 800, color: "#fff" }}>
+          <h1 style={{ margin: 0, fontSize: "24px", fontWeight: 800, color: "var(--theme-text)" }}>
             Studio Overview
           </h1>
           <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--theme-text-muted)" }}>
@@ -62,8 +61,8 @@ const DashboardHome = () => {
           style={{
             display: "flex", alignItems: "center", gap: "8px",
             padding: "8px 16px", borderRadius: "8px",
-            background: loading ? "#333" : "#c9a15a",
-            color: loading ? "#999" : "#1a1a1a", 
+            background: loading ? "var(--theme-skeleton, #333)" : "var(--color-yellow-500, #c9a15a)",
+            color: loading ? "var(--theme-text-muted, #999)" : "#fff",
             border: "none", cursor: loading ? "not-allowed" : "pointer",
             fontSize: "13px", fontWeight: 600, transition: "background 0.2s",
           }}
@@ -76,7 +75,7 @@ const DashboardHome = () => {
       <div style={{ padding: "28px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         {error && (
           <div style={{
-            background: "#500", border: "1px solid #f00", borderRadius: "12px",
+            background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.4)", borderRadius: "12px",
             padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px", color: "#f87171",
           }}>
             <AlertCircle size={18} />
@@ -92,7 +91,6 @@ const DashboardHome = () => {
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: "20px",
         }}>
-          {/* 1. Today's Revenue */}
           <SummaryCard
             title="Today's Revenue"
             value={data ? formatRupees(data.revenueToday) : '₹0'}
@@ -101,7 +99,6 @@ const DashboardHome = () => {
             color="#c9a15a"
             isLoading={loading}
           />
-          {/* 2. Monthly Revenue */}
           <SummaryCard
             title="Monthly Revenue"
             value={data ? formatRupees(data.revenueThisMonth) : '₹0'}
@@ -110,7 +107,6 @@ const DashboardHome = () => {
             color="#10b981"
             isLoading={loading}
           />
-          {/* 3. Active Employees */}
           <SummaryCard
             title="Active Employees"
             value={data ? data.activeEmployees : '0'}
@@ -118,15 +114,13 @@ const DashboardHome = () => {
             color="#8b5cf6"
             isLoading={loading}
           />
-          {/* 4. Total Customers */}
           <SummaryCard
             title="Total Customers"
-            value={data ? data.totalOrders : '0'} 
+            value={data ? data.totalOrders : '0'}
             icon={<Users size={22} />}
             color="#3b82f6"
             isLoading={loading}
           />
-          {/* 5. Pending Payments */}
           <SummaryCard
             title="Pending Payments"
             value={data ? formatRupees(data.pendingPayments) : '₹0'}

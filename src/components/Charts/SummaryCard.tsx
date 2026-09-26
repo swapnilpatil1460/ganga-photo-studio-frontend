@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface SummaryCardProps {
@@ -19,7 +19,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   icon,
   trend,
   trendLabel,
-  color = "#c9a15a", // Default to Gold
+  color = "var(--color-yellow-500)",
   isLoading = false,
 }) => {
   const TrendIcon =
@@ -34,10 +34,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   return (
     <div
       style={{
-        background: "#1a1a1a",
+        background: "var(--theme-chart-bg, #1a1a1a)",
         borderRadius: "16px",
         padding: "20px 24px",
-        border: "1px solid #333",
+        border: "1px solid var(--theme-chart-border, #333)",
         borderLeft: `4px solid ${color}`,
         display: "flex",
         flexDirection: "column",
@@ -58,16 +58,16 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           {title}
         </span>
         {icon && (
-          <div style={{ background: `${color}15`, borderRadius: "10px", padding: "8px", color }}>
+          <div style={{ background: `${color}20`, borderRadius: "10px", padding: "8px", color }}>
             {icon}
           </div>
         )}
       </div>
 
       {isLoading ? (
-        <div style={{ height: "32px", background: "#333", borderRadius: "8px", animation: "pulse 1.5s infinite" }} />
+        <div style={{ height: "32px", background: "var(--theme-skeleton, #333)", borderRadius: "8px", animation: "pulse 1.5s infinite" }} />
       ) : (
-        <span style={{ fontSize: "28px", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>
+        <span style={{ fontSize: "28px", fontWeight: 800, color: "var(--theme-text)", lineHeight: 1.1 }}>
           {value}
         </span>
       )}

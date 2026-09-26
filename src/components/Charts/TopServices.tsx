@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   PieChart,
   Pie,
@@ -24,12 +24,15 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: "#000", border: "1px solid #333", color: "#f8fafc", padding: "10px 14px",
+        background: "var(--theme-chart-tooltip-bg, #000)",
+        border: "1px solid var(--theme-chart-border, #333)",
+        color: "var(--theme-chart-tooltip-color, #f8fafc)",
+        padding: "10px 14px",
         borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 16px rgba(0,0,0,0.5)"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: payload[0].payload.fill }} />
-          <span style={{ color: "#e2e8f0" }}>
+          <span style={{ color: "var(--theme-chart-tooltip-color, #e2e8f0)" }}>
             {payload[0].name}: <span style={{ fontWeight: 600 }}>{payload[0].value} Orders</span>
           </span>
         </div>
@@ -42,11 +45,11 @@ const CustomTooltip = ({ active, payload }: any) => {
 const TopServices: React.FC<TopServicesProps> = ({ data, isLoading }) => {
   return (
     <div style={{
-      background: "#1a1a1a", borderRadius: "16px", padding: "20px", border: "1px solid #333",
-      boxShadow: "0 4px 16px rgba(0,0,0,0.2)", height: "100%"
+      background: "var(--theme-chart-bg, #1a1a1a)", borderRadius: "16px", padding: "20px",
+      border: "1px solid var(--theme-chart-border, #333)", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", height: "100%"
     }}>
       <div style={{ marginBottom: "16px" }}>
-        <h2 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#fff" }}>
+        <h2 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--theme-text)" }}>
           Top Services
         </h2>
         <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--theme-text-muted)" }}>
@@ -55,7 +58,7 @@ const TopServices: React.FC<TopServicesProps> = ({ data, isLoading }) => {
       </div>
 
       {isLoading ? (
-        <div style={{ height: 260, background: "#333", borderRadius: "12px", animation: "pulse 1.5s infinite" }} />
+        <div style={{ height: 260, background: "var(--theme-skeleton, #333)", borderRadius: "12px", animation: "pulse 1.5s infinite" }} />
       ) : data.length === 0 ? (
         <div style={{ height: 260, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--theme-text-muted)", fontSize: "14px" }}>
           No service data available

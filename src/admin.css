@@ -25,20 +25,88 @@
   --theme-text-muted: var(--theme-text-muted);
 }
 
-/* Lighter Dark Theme for Internal Dashboard */
-.theme-dashboard {
+/* Day / Light Theme for Internal Dashboard */
+.theme-dashboard, .theme-light {
   --theme-bg: #ffffff;
-  --theme-bg-main: #f4f7fa; /* Super light gray for main background */
-  --theme-bg-card: #ffffff; /* White for cards/sidebar */
-  --theme-border: #e2e8f0; /* Soft borders */
-  --theme-text: #334155; /* Dark slate for primary text */
-  --theme-text-muted: #64748b; /* Lighter slate for secondary text */
-  --color-yellow-500: #0ea5e9; /* Change accent color to Fila blue */
-  --color-yellow-600: #0284c7; /* Darker blue for hover */
+  --theme-bg-main: #f4f7fa;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-hover: #f1f5f9;
+  --theme-border: #e2e8f0;
+  --theme-text: #334155;
+  --theme-text-muted: #64748b;
+  --theme-header-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --theme-header-border: #e2e8f0;
+  --theme-chart-bg: #ffffff;
+  --theme-chart-border: #e2e8f0;
+  --theme-chart-grid: #e2e8f0;
+  --theme-chart-tooltip-bg: #1e293b;
+  --theme-chart-tooltip-color: #f8fafc;
+  --theme-skeleton: #e2e8f0;
+  --theme-card-bg: #ffffff;
+  --color-yellow-500: #0ea5e9;
+  --color-yellow-600: #0284c7;
   color: var(--theme-text);
 }
 
-* {
+/* Night / Dark Theme */
+.theme-dark {
+  --theme-bg: #0d0d0d;
+  --theme-bg-main: #111111;
+  --theme-bg-card: #1a1a1a;
+  --theme-bg-card-hover: #222222;
+  --theme-border: #333333;
+  --theme-text: #f1f5f9;
+  --theme-text-muted: #94a3b8;
+  --theme-header-bg: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  --theme-header-border: #333333;
+  --theme-chart-bg: #1a1a1a;
+  --theme-chart-border: #333333;
+  --theme-chart-grid: #333333;
+  --theme-chart-tooltip-bg: #000000;
+  --theme-chart-tooltip-color: #f8fafc;
+  --theme-skeleton: #333333;
+  --theme-card-bg: #1a1a1a;
+  --color-yellow-500: #c9a15a;
+  --color-yellow-600: #a38045;
+  color: var(--theme-text);
+}
+
+/* ────────────────────────────────────────────────────────────
+   LIGHT THEME: override any hardcoded dark Tailwind classes
+   so pages like UsersPage render correctly in day mode
+   ──────────────────────────────────────────────────────────── */
+.theme-light [class*="bg-[#1a1a1a]"],
+.theme-light [class*="bg-[#111"],
+.theme-light [class*="bg-[#222"] {
+  background-color: var(--theme-bg-card) !important;
+}
+.theme-light .bg-black\/20,
+.theme-light .bg-black\/50,
+.theme-light .bg-black\/60 {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+.theme-light [class*="border-gray-800"] {
+  border-color: var(--theme-border) !important;
+}
+.theme-light [class*="divide-gray-800"] > * + * {
+  border-color: var(--theme-border) !important;
+}
+.theme-light .text-white {
+  color: var(--theme-text) !important;
+}
+.theme-light [class*="bg-gray-800"] {
+  background-color: var(--theme-bg-main) !important;
+}
+.theme-light [class*="text-gray-300"],
+.theme-light [class*="text-gray-400"],
+.theme-light [class*="text-gray-500"] {
+  color: var(--theme-text-muted) !important;
+}
+.theme-light .backdrop-blur-sm {
+  background-color: rgba(0,0,0,0.3) !important;
+}
+
+*  {
   box-sizing: border-box;
   margin: 0;
   padding: 0;

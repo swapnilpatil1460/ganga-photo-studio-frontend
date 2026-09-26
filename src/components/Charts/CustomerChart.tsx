@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -25,7 +25,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        background: "#000", border: "1px solid #333", color: "#f8fafc", padding: "10px 14px",
+        background: "var(--theme-chart-tooltip-bg, #000)",
+        border: "1px solid var(--theme-chart-border, #333)",
+        color: "var(--theme-chart-tooltip-color, #f8fafc)",
+        padding: "10px 14px",
         borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 16px rgba(0,0,0,0.5)"
       }}>
         <p style={{ margin: "0 0 8px", fontWeight: 700, color: "var(--theme-text-muted)" }}>{label}</p>
@@ -33,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           {payload.map((entry: any, index: number) => (
             <div key={index} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: entry.color }} />
-              <span style={{ color: "#e2e8f0" }}>
+              <span style={{ color: "var(--theme-chart-tooltip-color, #e2e8f0)" }}>
                 {entry.name}: <span style={{ fontWeight: 600 }}>{entry.value}</span>
               </span>
             </div>
@@ -48,11 +51,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const CustomerChart: React.FC<CustomerChartProps> = ({ data, isLoading }) => {
   return (
     <div style={{
-      background: "#1a1a1a", borderRadius: "16px", padding: "20px", border: "1px solid #333",
-      boxShadow: "0 4px 16px rgba(0,0,0,0.2)", height: "100%"
+      background: "var(--theme-chart-bg, #1a1a1a)", borderRadius: "16px", padding: "20px",
+      border: "1px solid var(--theme-chart-border, #333)", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", height: "100%"
     }}>
       <div style={{ marginBottom: "16px" }}>
-        <h2 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#fff" }}>
+        <h2 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "var(--theme-text)" }}>
           Customer Acquisition
         </h2>
         <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--theme-text-muted)" }}>
@@ -61,7 +64,7 @@ const CustomerChart: React.FC<CustomerChartProps> = ({ data, isLoading }) => {
       </div>
 
       {isLoading ? (
-        <div style={{ height: 260, background: "#333", borderRadius: "12px", animation: "pulse 1.5s infinite" }} />
+        <div style={{ height: 260, background: "var(--theme-skeleton, #333)", borderRadius: "12px", animation: "pulse 1.5s infinite" }} />
       ) : data.length === 0 ? (
         <div style={{ height: 260, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--theme-text-muted)", fontSize: "14px" }}>
           No customer data available
@@ -69,12 +72,12 @@ const CustomerChart: React.FC<CustomerChartProps> = ({ data, isLoading }) => {
       ) : (
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data} barSize={24}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-            <XAxis dataKey="month" tick={{ fontSize: 12, fill: "var(--theme-text-muted)" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: "var(--theme-text-muted)" }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#333", opacity: 0.4 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-chart-grid, #333)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: "var(--theme-text-muted)" as any }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: "var(--theme-text-muted)" as any }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--theme-chart-grid, #333)", opacity: 0.4 }} />
             <Legend wrapperStyle={{ fontSize: "12px", color: "var(--theme-text-muted)" }} />
-            <Bar dataKey="new" name="New Customers" stackId="a" fill="#c9a15a" radius={[0, 0, 4, 4]} />
+            <Bar dataKey="new" name="New Customers" stackId="a" fill="var(--color-yellow-500, #c9a15a)" radius={[0, 0, 4, 4]} />
             <Bar dataKey="returning" name="Returning" stackId="a" fill="#6b7280" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
