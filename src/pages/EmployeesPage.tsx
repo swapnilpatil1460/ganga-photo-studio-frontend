@@ -12,6 +12,8 @@ interface Employee {
   status: string;
   dateJoined: string;
   photo?: string;
+  isOnline?: boolean;
+  lastActiveAt?: string;
 }
 
 const EmployeesPage = () => {
@@ -155,15 +157,29 @@ const EmployeesPage = () => {
                 >
                   <td>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold shrink-0 overflow-hidden" style={{ backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-muted)' }}>
-                        {emp.photo ? (
-                          <img src={emp.photo} alt={emp.name} className="w-full h-full object-cover" />
-                        ) : (
-                          emp.name.charAt(0)
-                        )}
+                      <div className="relative shrink-0">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold overflow-hidden" style={{ backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-muted)' }}>
+                          {emp.photo ? (
+                            <img src={emp.photo} alt={emp.name} className="w-full h-full object-cover" />
+                          ) : (
+                            emp.name.charAt(0)
+                          )}
+                        </div>
+                        <span 
+                          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 ${emp.isOnline ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.9)]' : 'bg-gray-500'}`}
+                          style={{ borderColor: 'var(--theme-card-bg, #121c1e)' }}
+                          title={emp.isOnline ? 'Online' : 'Offline'}
+                        />
                       </div>
                       <div>
-                        <div className="font-medium" style={{ color: 'var(--theme-text)' }}>{emp.name}</div>
+                        <div className="font-medium flex items-center gap-2" style={{ color: 'var(--theme-text)' }}>
+                          <span>{emp.name}</span>
+                          {emp.isOnline && (
+                            <span className="px-1.5 py-0.2 text-[10px] font-semibold rounded bg-green-500/10 text-green-400 border border-green-500/20">
+                              Online
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs font-mono" style={{ color: 'var(--theme-text-muted)' }}>ID: {emp._id.substring(0,6)}</div>
                       </div>
                     </div>
@@ -178,7 +194,13 @@ const EmployeesPage = () => {
                     <div className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>{emp.email}</div>
                   </td>
                   <td>
-                    {getStatusBadge(emp.status)}
+                    <div className="flex flex-col gap-1 items-start">
+                      {getStatusBadge(emp.status)}
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${emp.isOnline ? 'text-green-400' : 'text-gray-400'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${emp.isOnline ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]' : 'bg-gray-500'}`} />
+                        {emp.isOnline ? 'Online now' : 'Offline'}
+                      </span>
+                    </div>
                   </td>
                   <td className="text-sm" style={{ color: 'var(--theme-text-muted)' }}>
                     {new Date(emp.dateJoined).toLocaleDateString()}
