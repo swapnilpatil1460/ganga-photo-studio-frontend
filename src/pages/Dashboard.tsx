@@ -183,7 +183,7 @@ const MessagesPanel = ({ onClose }: { onClose: () => void }) => (
 // ── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 768 : true));
   const [isDark, setIsDark] = useState(localStorage.getItem('themeMode') !== 'light');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -191,6 +191,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem('role') || 'employee';
   const theme = isDark ? 'theme-dashboard' : 'theme-light';
+
+  const handleNavClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -242,33 +248,44 @@ const Dashboard = () => {
 
       {/* ── Sidebar ── */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="overflow-hidden flex items-center justify-center p-0 rounded-full border border-[#c9a15a]">
-            <img src="/logo.jpg" alt="Logo" className="w-14 h-14 object-cover" />
+        <div className="sidebar-header flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="overflow-hidden flex items-center justify-center p-0 rounded-full border border-[#c9a15a] flex-shrink-0">
+              <img src="/logo.jpg" alt="Logo" className="w-10 h-10 object-cover" />
+            </div>
+            <span className="sidebar-title">Ganga Studio</span>
           </div>
-          <span className="sidebar-title">Ganga Studio</span>
+          <button 
+            type="button"
+            className="icon-btn text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            onClick={() => setIsSidebarOpen(false)}
+            title="Hide sidepanel"
+            aria-label="Hide Sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" path="/dashboard" onClick={() => setIsSidebarOpen(false)} />
-          <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" path="/dashboard/orders" onClick={() => setIsSidebarOpen(false)} />
-          <SidebarItem icon={<Users size={20} />} label="Customers" path="/dashboard/customers" onClick={() => setIsSidebarOpen(false)} />
-          <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" onClick={() => setIsSidebarOpen(false)} />
+          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" path="/dashboard" onClick={handleNavClick} />
+          <SidebarItem icon={<ShoppingCart size={20} />} label="Orders" path="/dashboard/orders" onClick={handleNavClick} />
+          <SidebarItem icon={<Users size={20} />} label="Customers" path="/dashboard/customers" onClick={handleNavClick} />
+          <SidebarItem icon={<CalendarDays size={20} />} label="Shoot Schedule" path="/dashboard/schedule" onClick={handleNavClick} />
 
           {role === 'owner' && (
             <>
-              <SidebarItem icon={<DollarSign size={20} />} label="Pricing" path="/dashboard/pricing" onClick={() => setIsSidebarOpen(false)} />
-              <SidebarItem icon={<FileText size={20} />} label="Billing" path="/dashboard/billing" onClick={() => setIsSidebarOpen(false)} />
-              <SidebarItem icon={<FileText size={20} />} label="Reports" path="/dashboard/reports" onClick={() => setIsSidebarOpen(false)} />
-              <SidebarItem icon={<UserSquare2 size={20} />} label="Employees" path="/dashboard/employees" onClick={() => setIsSidebarOpen(false)} />
-              <SidebarItem icon={<Users size={20} />} label="System Users" path="/dashboard/users" onClick={() => setIsSidebarOpen(false)} />
+              <SidebarItem icon={<DollarSign size={20} />} label="Pricing" path="/dashboard/pricing" onClick={handleNavClick} />
+              <SidebarItem icon={<FileText size={20} />} label="Billing" path="/dashboard/billing" onClick={handleNavClick} />
+              <SidebarItem icon={<FileText size={20} />} label="Reports" path="/dashboard/reports" onClick={handleNavClick} />
+              <SidebarItem icon={<UserSquare2 size={20} />} label="Employees" path="/dashboard/employees" onClick={handleNavClick} />
+              <SidebarItem icon={<Users size={20} />} label="System Users" path="/dashboard/users" onClick={handleNavClick} />
             </>
           )}
 
-          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" onClick={() => setIsSidebarOpen(false)} />
+          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" onClick={handleNavClick} />
 
           {role === 'owner' && (
-            <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" onClick={() => setIsSidebarOpen(false)} />
+            <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" onClick={handleNavClick} />
           )}
         </nav>
 
@@ -283,10 +300,19 @@ const Dashboard = () => {
       {/* ── Main Content ── */}
       <main className="dashboard-main">
         <header className="dashboard-topnav">
-          {/* Left: Hamburger + Search */}
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <button className="md:hidden icon-btn" onClick={e => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}>
-              <Menu size={24} />
+          {/* Left: Hamburger Menu Button */}
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              className="icon-btn hover:bg-white/10 p-2 rounded-lg transition-colors cursor-pointer"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setIsSidebarOpen(prev => !prev); 
+              }}
+              title={isSidebarOpen ? "Hide sidepanel" : "Show sidepanel"}
+              aria-label="Toggle Sidepanel"
+            >
+              <Menu size={22} />
             </button>
           </div>
 
