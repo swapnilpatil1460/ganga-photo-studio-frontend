@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trash2, KeyRound, AlertCircle, X, AlertTriangle, Eye, Copy, CheckCircle } from 'lucide-react';
+import { Trash2, KeyRound, AlertCircle, X, AlertTriangle, Eye, Copy, CheckCircle, Edit } from 'lucide-react';
 
 interface UserData {
   _id: string;
@@ -18,6 +18,11 @@ export default function UsersPage() {
   const [resettingId, setResettingId] = useState<string | null>(null);
   const [newCredentials, setNewCredentials] = useState<{email: string, password: string} | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const [editPasswordUserId, setEditPasswordUserId] = useState<string | null>(null);
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+  const [editPasswordError, setEditPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -89,6 +94,36 @@ export default function UsersPage() {
     }
   };
 
+  const submitNewPassword = async () => {
+    if (!editPasswordUserId || !newPasswordInput || newPasswordInput.length < 6) {
+      setEditPasswordError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    setIsSubmittingPassword(true);
+    setEditPasswordError(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/users/${editPasswordUserId}/password`, {
+        credentials: 'include',
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ newPassword: newPasswordInput })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update password');
+      
+      setEditPasswordUserId(null);
+      setNewPasswordInput('');
+    } catch (err: any) {
+      setEditPasswordError(err.message);
+    } finally {
+      setIsSubmittingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -151,6 +186,17 @@ export default function UsersPage() {
                           className="text-gray-500 hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
                         >
                           <Eye size={16} />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEditPasswordUserId(user._id);
+                            setNewPasswordInput('');
+                            setEditPasswordError(null);
+                          }}
+                          title="Edit Password"
+                          className="text-gray-500 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
+                        >
+                          <Edit size={16} />
                         </button>
                       </div>
                     </td>
@@ -298,7 +344,7 @@ export default function UsersPage() {
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
-                  className={`absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors border ${copied ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
+                  className={"absolute top-4 right-4 p-2 rounded-md flex items-center gap-1 text-xs transition-colors border "}
                 >
                   {copied ? <><CheckCircle size={14} /> Copied Email</> : <><Copy size={14} /> Copy Email</>}
                 </button>
@@ -316,6 +362,50 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Password Modal */}
+      {editPasswordUserId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <h2 className="text-lg font-bold text-blue-500 flex items-center gap-2">
+                <Edit size={20} />
+                Edit Password
+              </h2>
+              <button onClick={() => setEditPasswordUserId(null)} className="p-1 hover:bg-white/10 rounded-full transition-colors text-gray-400">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {editPasswordError && (
+                <div className="text-sm bg-red-500/10 text-red-500 p-3 rounded-lg border border-red-500/20">
+                  {editPasswordError}
+                </div>
+              )}
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-wider font-bold block text-gray-500">New Password</label>
+                <input
+                  type="text"
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  placeholder="Enter new password"
+                  className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <p className="text-xs text-[var(--theme-text-muted)]">
+                Password must be at least 6 characters long. The user will be able to log in with this new password immediately.
+              </p>
+            </div>
+            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
+              <button onClick={() => setEditPasswordUserId(null)} disabled={isSubmittingPassword} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">Cancel</button>
+              <button onClick={submitNewPassword} disabled={isSubmittingPassword} className="px-4 py-2 text-sm font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors flex items-center gap-2">
+                {isSubmittingPassword ? 'Saving...' : 'Save Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
