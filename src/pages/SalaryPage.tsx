@@ -11,10 +11,15 @@ interface SalaryRecord {
   _id: string;
   employeeId: { _id: string; name: string; role: string; email: string };
   month: string;
-  status: 'Draft' | 'Calculated' | 'Paid';
+  status: 'Draft' | 'Calculated' | 'Paid' | 'Partial';
   components: { netSalary: number };
   attendance: { workingDays: number; present: number; absent: number };
-  paymentDetails?: { paymentDate: string; transactionReference: string };
+  paymentDetails?: { 
+    paymentDate: string; 
+    transactionReference: string;
+    paidAmount?: number;
+    remainingAmount?: number;
+  };
 }
 
 export default function SalaryPage() {
@@ -95,6 +100,19 @@ export default function SalaryPage() {
             )}
           </div>
         );
+      case 'Partial':
+        return (
+          <div className="flex flex-col items-start gap-1">
+            <span className="px-3 py-1 text-sm font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-300">
+              Partial Paid
+            </span>
+            {record.paymentDetails?.paymentDate && (
+              <span className="text-xs font-semibold text-[var(--theme-text)] whitespace-nowrap">
+                {new Date(record.paymentDetails.paymentDate).toLocaleDateString('en-GB')}
+              </span>
+            )}
+          </div>
+        );
       case 'Calculated': 
         return <span className="px-3 py-1 text-sm font-bold rounded-md bg-blue-100 text-blue-800 border border-blue-200">Calculated</span>;
       default: 
@@ -167,8 +185,8 @@ export default function SalaryPage() {
                 {filtered.map(record => {
                   const net = record.components?.netSalary || 0;
                   const isPaid = record.status === 'Paid';
-                  const paidAmount = isPaid ? net : 0;
-                  const unpaidAmount = !isPaid ? net : 0;
+                  const paidAmount = record.paymentDetails?.paidAmount ?? (isPaid ? net : 0);
+                  const unpaidAmount = isPaid ? 0 : (record.paymentDetails?.remainingAmount ?? Math.max(0, net - paidAmount));
 
                   return (
                     <tr key={record._id} className="hover:bg-gray-50/5 cursor-pointer" onClick={() => navigate(`/dashboard/salary/employee/${record.employeeId._id}?month=${selectedMonth}`)}>

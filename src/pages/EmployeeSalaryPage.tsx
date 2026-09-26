@@ -60,6 +60,7 @@ export default function EmployeeSalaryPage() {
   
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [payingAmount, setPayingAmount] = useState<number | string>('');
   const [transactionRef, setTransactionRef] = useState('');
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -139,28 +140,50 @@ export default function EmployeeSalaryPage() {
   };
 
   const openPaymentModal = () => {
-    if (!currentRecord || currentRecord.status !== 'Calculated') {
+    if (!currentRecord || (currentRecord.status !== 'Calculated' && currentRecord.status !== 'Partial')) {
       showNotification('Must calculate salary first before paying.', 'error');
       return;
     }
+    const net = currentRecord.components?.netSalary || 0;
+    const currentPaid = currentRecord.paymentDetails?.paidAmount || 0;
+    const currentRemaining = Math.max(0, net - currentPaid);
+    
+    setPayingAmount(currentRemaining > 0 ? currentRemaining : net);
     setTransactionRef('');
     setShowPaymentModal(true);
   };
 
   const confirmPayment = async () => {
+    const payAmt = Number(payingAmount);
+    if (!payAmt || payAmt <= 0) {
+      showNotification('Please enter a valid payment amount', 'error');
+      return;
+    }
+
+    if (!transactionRef.trim()) {
+      showNotification('Transaction reference is required', 'error');
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/salary/${currentRecord._id}/pay`, {
         method: 'PUT',
         credentials: 'include',
         headers: authHeaders(),
-        body: JSON.stringify({ transactionReference: transactionRef })
+        body: JSON.stringify({ 
+          transactionReference: transactionRef,
+          paymentDate,
+          amountPaid: payAmt
+        })
       });
       if (res.ok) {
         const data = await res.json();
         setCurrentRecord(data);
         setShowPaymentModal(false);
+        showNotification(data.status === 'Paid' ? 'Salary marked as fully Paid!' : 'Partial payment recorded successfully!');
       } else {
-        showNotification('Failed to mark as paid', 'error');
+        const errData = await res.json();
+        showNotification(errData.message || 'Failed to process payment', 'error');
       }
     } catch (err) {
       console.error(err);
@@ -171,7 +194,8 @@ export default function EmployeeSalaryPage() {
   if (loading) return <div className="p-8 text-center text-[var(--theme-text-muted)]">Loading...</div>;
   if (!employee) return <div className="p-8 text-center text-[var(--theme-text-muted)]">Employee not found.</div>;
 
-  const isReadOnly = currentRecord?.status === 'Paid';
+  const isPaidFull = currentRecord?.status === 'Paid';
+  const isReadOnly = isPaidFull || currentRecord?.status === 'Partial';
   const gross = Number(components.basicSalary) + Number(components.otherEarnings);
   
   // Calculate Leave Deductions automatically based on attendance
@@ -183,7 +207,9 @@ export default function EmployeeSalaryPage() {
   }
 
   const totalDeductions = Number(components.deductions) + Number(components.advanceRecovery) + leaveDeduction;
-  const net = gross - totalDeductions;
+  const net = currentRecord?.components?.netSalary ?? (gross - totalDeductions);
+  const totalPaid = currentRecord?.paymentDetails?.paidAmount ?? (isPaidFull ? net : 0);
+  const remaining = isPaidFull ? 0 : (currentRecord?.paymentDetails?.remainingAmount ?? Math.max(0, net - totalPaid));
 
   return (
     <div className="page-container" style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -216,11 +242,25 @@ export default function EmployeeSalaryPage() {
               </h2>
               {currentRecord?.status === 'Paid' && (
                 <div className="flex flex-col items-end">
-                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 mb-1">Paid</span>
+                  <span className="px-3 py-1 text-sm font-bold rounded-full bg-green-100 text-green-800 mb-1">Paid</span>
                   {currentRecord.paymentDetails && (
                     <div className="text-xs text-[var(--theme-text-muted)] text-right">
-                      Paid on: {new Date(currentRecord.paymentDetails.paymentDate).toLocaleDateString()}<br/>
+                      Paid: ₹{totalPaid.toLocaleString()}<br/>
+                      Paid on: {new Date(currentRecord.paymentDetails.paymentDate).toLocaleDateString('en-GB')}<br/>
                       Ref: {currentRecord.paymentDetails.transactionReference}
+                    </div>
+                  )}
+                </div>
+              )}
+              {currentRecord?.status === 'Partial' && (
+                <div className="flex flex-col items-end">
+                  <span className="px-3 py-1 text-sm font-bold rounded-full bg-amber-100 text-amber-900 border border-amber-300 mb-1">
+                    Partial Payment Done
+                  </span>
+                  {currentRecord.paymentDetails && (
+                    <div className="text-xs text-[var(--theme-text-muted)] text-right">
+                      Paid: <strong className="text-green-500">₹{totalPaid.toLocaleString()}</strong> | Remaining: <strong className="text-amber-500">₹{remaining.toLocaleString()}</strong><br/>
+                      Last paid: {new Date(currentRecord.paymentDetails.paymentDate).toLocaleDateString('en-GB')}
                     </div>
                   )}
                 </div>
@@ -254,30 +294,49 @@ export default function EmployeeSalaryPage() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center bg-gray-800/30 p-4 rounded-lg mb-6">
-              <div>
-                <div className="text-sm text-[var(--theme-text-muted)]">Gross: ₹{gross.toLocaleString()}</div>
-                <div className="text-sm text-red-500/80">Leave Deduction: -₹{leaveDeduction.toLocaleString()}</div>
-                <div className="text-sm text-[var(--theme-text-muted)]">Other Deductions: ₹{(Number(components.deductions) + Number(components.advanceRecovery)).toLocaleString()}</div>
+            <div className="bg-gray-800/30 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center pb-3 border-b border-gray-700/40">
+                <div>
+                  <div className="text-sm text-[var(--theme-text-muted)]">Gross: ₹{gross.toLocaleString()}</div>
+                  <div className="text-sm text-red-500/80">Leave Deduction: -₹{leaveDeduction.toLocaleString()}</div>
+                  <div className="text-sm text-[var(--theme-text-muted)]">Other Deductions: ₹{(Number(components.deductions) + Number(components.advanceRecovery)).toLocaleString()}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Net Salary</div>
+                  <div className="text-2xl font-bold" style={{ color: 'var(--theme-accent)' }}>₹{net.toLocaleString()}</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs text-[var(--theme-text-muted)] uppercase tracking-wider mb-1">Net Salary</div>
-                <div className="text-2xl font-bold" style={{ color: 'var(--theme-accent)' }}>₹{net.toLocaleString()}</div>
-              </div>
+
+              {(currentRecord?.status === 'Partial' || currentRecord?.status === 'Paid' || totalPaid > 0) && (
+                <div className="pt-3 grid grid-cols-2 gap-4 text-sm">
+                  <div className="p-2.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <span className="text-xs text-green-400 uppercase font-semibold block mb-0.5">Final Amount Paid</span>
+                    <span className="text-lg font-bold text-green-400">₹{totalPaid.toLocaleString()}</span>
+                  </div>
+                  <div className={`p-2.5 rounded-lg ${remaining > 0 ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-gray-700/20 border border-gray-700/40'}`}>
+                    <span className="text-xs uppercase font-semibold block mb-0.5" style={{ color: remaining > 0 ? '#f59e0b' : 'var(--theme-text-muted)' }}>Remaining Unpaid</span>
+                    <span className={`text-lg font-bold ${remaining > 0 ? 'text-amber-400' : 'text-gray-400'}`}>
+                      ₹{remaining.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {!isReadOnly && (
+            {!isPaidFull && (
               <div className="flex gap-4">
-                <button className="btn-primary flex-1 flex items-center justify-center gap-2" onClick={handleCalculate}>
-                  <Save size={18} /> Calculate & Save
-                </button>
+                {currentRecord?.status !== 'Partial' && (
+                  <button className="btn-primary flex-1 flex items-center justify-center gap-2" onClick={handleCalculate}>
+                    <Save size={18} /> Calculate & Save
+                  </button>
+                )}
                 <button 
                   className="btn-primary flex-1 flex items-center justify-center gap-2" 
                   style={{ backgroundColor: '#10b981', color: 'white' }}
                   onClick={openPaymentModal}
-                  disabled={currentRecord?.status !== 'Calculated'}
+                  disabled={currentRecord?.status !== 'Calculated' && currentRecord?.status !== 'Partial'}
                 >
-                  <CheckCircle size={18} /> Mark as Paid
+                  <CheckCircle size={18} /> {currentRecord?.status === 'Partial' ? `Pay Remaining (₹${remaining.toLocaleString()})` : 'Pay Salary'}
                 </button>
               </div>
             )}
@@ -369,6 +428,27 @@ export default function EmployeeSalaryPage() {
               </div>
             )}
           </div>
+
+          {currentRecord?.paymentDetails?.history && currentRecord.paymentDetails.history.length > 0 && (
+            <div className="dashboard-card">
+              <h3 className="text-md font-bold mb-3 flex items-center gap-2" style={{ color: 'var(--theme-text)' }}>
+                <CheckCircle size={18} className="text-green-500" /> Payment History
+              </h3>
+              <div className="space-y-2">
+                {currentRecord.paymentDetails.history.map((h: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center p-3 rounded-lg border border-gray-800/50 bg-gray-800/20 text-xs">
+                    <div>
+                      <div className="font-bold text-green-400 text-sm">₹{(h.amount || 0).toLocaleString()}</div>
+                      <div className="text-[var(--theme-text-muted)] mt-0.5">Ref: {h.transactionReference || 'N/A'}</div>
+                    </div>
+                    <div className="text-right text-[var(--theme-text-muted)]">
+                      {h.paymentDate ? new Date(h.paymentDate).toLocaleDateString('en-GB') : '-'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
       </div>
@@ -378,11 +458,37 @@ export default function EmployeeSalaryPage() {
         <div className="modal-overlay flex items-center justify-center p-4">
           <div className="dashboard-card w-full max-w-md relative animate-slide-up">
             <button className="absolute top-4 right-4 text-gray-500 hover:text-white" onClick={() => setShowPaymentModal(false)}>✕</button>
-            <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--theme-text)' }}>Mark Salary as Paid</h2>
-            <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
-              Are you sure you want to mark this month's salary as Paid? This action will lock the salary record and it cannot be edited afterwards.
+            <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--theme-text)' }}>
+              {currentRecord?.status === 'Partial' ? 'Pay Remaining Salary' : 'Record Salary Payment'}
+            </h2>
+            <p className="text-sm mb-5" style={{ color: 'var(--theme-text-muted)' }}>
+              Enter payment details below. You can pay the full remaining balance or enter a lower amount to record a <strong>Partial Payment</strong>.
             </p>
-                        <div className="form-group mb-4">
+
+            <div className="form-group mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <label className="mb-0">Amount to Pay (₹) <span className="text-red-500">*</span></label>
+                <span className="text-xs text-[var(--theme-text-muted)]">
+                  Remaining: <strong>₹{remaining.toLocaleString()}</strong>
+                </span>
+              </div>
+              <input 
+                type="number" 
+                className="form-input text-lg font-bold" 
+                value={payingAmount}
+                max={remaining}
+                onChange={e => setPayingAmount(e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder={`e.g. ${remaining}`}
+                autoFocus
+              />
+              {Number(payingAmount) < remaining && Number(payingAmount) > 0 && (
+                <p className="text-xs text-amber-400 mt-1.5 flex items-center gap-1">
+                  <span>⚠️ Partial payment: <strong>₹{(remaining - Number(payingAmount)).toLocaleString()}</strong> will remain unpaid.</span>
+                </p>
+              )}
+            </div>
+
+            <div className="form-group mb-4">
               <label>Payment Date <span className="text-red-500">*</span></label>
               <input 
                 type="date" 
@@ -399,7 +505,6 @@ export default function EmployeeSalaryPage() {
                 placeholder="e.g. UTR Number, Cash, Cheque No." 
                 value={transactionRef}
                 onChange={e => setTransactionRef(e.target.value)}
-                autoFocus
               />
             </div>
             <div className="flex gap-4 justify-end">
