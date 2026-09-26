@@ -374,7 +374,7 @@ export default function EmployeeSalaryPage() {
               Are you sure you want to mark this month's salary as Paid? This action will lock the salary record and it cannot be edited afterwards.
             </p>
             <div className="form-group mb-6">
-              <label>Transaction Reference / Notes (Optional)</label>
+              <label>Transaction Reference No. <span className="text-red-500">*</span></label>
               <input 
                 type="text" 
                 className="form-input" 
