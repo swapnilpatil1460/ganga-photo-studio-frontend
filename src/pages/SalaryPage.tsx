@@ -166,7 +166,7 @@ export default function SalaryPage() {
                             <th>Employee</th>
                             <th>Designation</th>
                             <th>Attendance</th>
-                            <th>Net Salary</th>
+                            <th>Unpaid Salary</th>
                             <th>Status</th>
                           </tr>
                         </thead>
@@ -215,7 +215,7 @@ export default function SalaryPage() {
                             <th>Employee</th>
                             <th>Designation</th>
                             <th>Attendance</th>
-                            <th>Net Salary</th>
+                            <th>Paid Salary</th>
                             <th>Paid Date</th>
                           </tr>
                         </thead>
