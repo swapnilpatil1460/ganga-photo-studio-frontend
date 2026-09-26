@@ -61,6 +61,7 @@ export default function EmployeeSalaryPage() {
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [transactionRef, setTransactionRef] = useState('');
+  const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -214,7 +215,15 @@ export default function EmployeeSalaryPage() {
                 Salary for {monthParam}
               </h2>
               {currentRecord?.status === 'Paid' && (
-                <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">Paid</span>
+                <div className="flex flex-col items-end">
+                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 mb-1">Paid</span>
+                  {currentRecord.paymentDetails && (
+                    <div className="text-xs text-[var(--theme-text-muted)] text-right">
+                      Paid on: {new Date(currentRecord.paymentDetails.paymentDate).toLocaleDateString()}<br/>
+                      Ref: {currentRecord.paymentDetails.transactionReference}
+                    </div>
+                  )}
+                </div>
               )}
               {currentRecord?.status === 'Calculated' && (
                 <span className="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">Calculated</span>
@@ -373,6 +382,15 @@ export default function EmployeeSalaryPage() {
             <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
               Are you sure you want to mark this month's salary as Paid? This action will lock the salary record and it cannot be edited afterwards.
             </p>
+                        <div className="form-group mb-4">
+              <label>Payment Date <span className="text-red-500">*</span></label>
+              <input 
+                type="date" 
+                className="form-input" 
+                value={paymentDate}
+                onChange={e => setPaymentDate(e.target.value)}
+              />
+            </div>
             <div className="form-group mb-6">
               <label>Transaction Reference No. <span className="text-red-500">*</span></label>
               <input 
