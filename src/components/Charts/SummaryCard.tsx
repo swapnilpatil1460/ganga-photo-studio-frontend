@@ -2,6 +2,7 @@ import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface SummaryCardProps {
+  isDark?: boolean;
   title: string;
   value: string | number;
   subtitle?: string;
@@ -13,48 +14,38 @@ interface SummaryCardProps {
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({
-  title,
-  value,
-  subtitle,
-  icon,
-  trend,
-  trendLabel,
-  color = "var(--color-yellow-500)",
+  isDark = true,
+  title, value, subtitle, icon, trend, trendLabel,
+  color = "#c9a15a",
   isLoading = false,
 }) => {
-  const TrendIcon =
-    trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-  const trendColor =
-    trend === "up"
-      ? "#22c55e"
-      : trend === "down"
-      ? "#ef4444"
-      : "#94a3b8";
+  const TrendIcon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
+  const trendColor = trend === "up" ? "#22c55e" : trend === "down" ? "#ef4444" : "#94a3b8";
+
+  const cardBg = isDark ? "#1a1a1a" : "#ffffff";
+  const cardBorder = isDark ? "#333" : "#e2e8f0";
+  const cardText = isDark ? "#ffffff" : "#334155";
+  const cardMuted = isDark ? "#94a3b8" : "#64748b";
+  const skeletonBg = isDark ? "#333" : "#e2e8f0";
 
   return (
     <div
       style={{
-        background: "var(--theme-chart-bg, #1a1a1a)",
+        background: cardBg,
         borderRadius: "16px",
         padding: "20px 24px",
-        border: "1px solid var(--theme-chart-border, #333)",
+        border: `1px solid ${cardBorder}`,
         borderLeft: `4px solid ${color}`,
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
+        display: "flex", flexDirection: "column", gap: "8px",
         minHeight: "120px",
         transition: "transform 0.2s, box-shadow 0.2s",
         cursor: "default",
       }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-      }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--theme-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        <span style={{ fontSize: "13px", fontWeight: 600, color: cardMuted, textTransform: "uppercase", letterSpacing: "0.05em" }}>
           {title}
         </span>
         {icon && (
@@ -65,9 +56,9 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
       </div>
 
       {isLoading ? (
-        <div style={{ height: "32px", background: "var(--theme-skeleton, #333)", borderRadius: "8px", animation: "pulse 1.5s infinite" }} />
+        <div style={{ height: "32px", background: skeletonBg, borderRadius: "8px", animation: "pulse 1.5s infinite" }} />
       ) : (
-        <span style={{ fontSize: "28px", fontWeight: 800, color: "var(--theme-text)", lineHeight: 1.1 }}>
+        <span style={{ fontSize: "28px", fontWeight: 800, color: cardText, lineHeight: 1.1 }}>
           {value}
         </span>
       )}
@@ -77,14 +68,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           {trend && (
             <>
               <TrendIcon size={13} color={trendColor} />
-              <span style={{ fontSize: "12px", color: trendColor, fontWeight: 600 }}>
-                {trendLabel}
-              </span>
+              <span style={{ fontSize: "12px", color: trendColor, fontWeight: 600 }}>{trendLabel}</span>
             </>
           )}
-          {subtitle && (
-            <span style={{ fontSize: "12px", color: "var(--theme-text-muted)" }}>{subtitle}</span>
-          )}
+          {subtitle && <span style={{ fontSize: "12px", color: cardMuted }}>{subtitle}</span>}
         </div>
       )}
     </div>
