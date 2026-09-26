@@ -262,7 +262,7 @@ const Dashboard = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const role = localStorage.getItem('role') || 'employee';
-  const theme = isDark ? 'theme-dark' : 'theme-light';
+  const theme = isDark ? 'theme-dashboard' : 'theme-light';
 
   const toggleTheme = () => {
     const next = !isDark;
