@@ -1,9 +1,11 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -12,7 +14,10 @@ const AdminLogin = () => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
       setError('Please fill in all fields.');
       return;
     }
@@ -20,28 +25,34 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       const response = await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/login', {
-      credentials: 'include',
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: cleanEmail, password: cleanPassword }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        
         localStorage.setItem('role', data.user.role);
         navigate('/dashboard');
       } else {
-        setError(data.message || 'Invalid credentials');
+        const errorMsg = data.message || (data.errors && data.errors[0]?.msg) || 'Invalid credentials';
+        setError(errorMsg);
       }
     } catch (err) {
       setError('Unable to connect to the server.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAutofillOwner = () => {
+    setEmail('owner@ganga.com');
+    setPassword('owner123');
+    setError('');
   };
 
   return (
@@ -59,7 +70,6 @@ const AdminLogin = () => {
       {/* Login Card */}
       <div className="w-full max-w-[400px] p-6 rounded-2xl border" style={{ background: '#121c1e', borderColor: '#1f2b2d' }}>
         
-
         {error && (
           <div className="mb-4 p-3 rounded-lg text-sm text-center" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
             {error}
@@ -73,12 +83,15 @@ const AdminLogin = () => {
               Email
             </label>
             <input 
-              type="email" 
+              type="text" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               className="w-full px-4 py-3 rounded-lg outline-none transition-colors border text-sm"
               style={{ background: '#0a1011', borderColor: '#1f2b2d', color: '#ffffff' }}
-              placeholder="studio@example.com"
+              placeholder="owner@ganga.com"
               required
             />
           </div>
@@ -88,27 +101,51 @@ const AdminLogin = () => {
             <label className="block text-xs uppercase tracking-wider mb-2" style={{ color: '#9ca3af' }}>
               Password
             </label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg outline-none transition-colors border text-sm tracking-widest placeholder:tracking-normal"
-              style={{ background: '#0a1011', borderColor: '#1f2b2d', color: '#ffffff' }}
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                className="w-full px-4 py-3 pr-11 rounded-lg outline-none transition-colors border text-sm tracking-widest placeholder:tracking-normal"
+                style={{ background: '#0a1011', borderColor: '#1f2b2d', color: '#ffffff' }}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           {/* Submit Button */}
           <button 
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-full text-sm font-semibold transition-transform hover:scale-[1.02] mt-8"
+            className="w-full py-3 rounded-full text-sm font-semibold transition-transform hover:scale-[1.02] mt-8 cursor-pointer"
             style={{ background: '#d5b274', color: '#000' }}
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
+
+        {/* Quick autofill helper */}
+        <div className="mt-5 pt-4 border-t border-gray-800 text-center">
+          <button
+            type="button"
+            onClick={handleAutofillOwner}
+            className="text-xs text-[#c9a15a] hover:underline cursor-pointer"
+          >
+            🔑 Autofill Owner Credentials
+          </button>
+        </div>
       </div>
     </div>
   );
