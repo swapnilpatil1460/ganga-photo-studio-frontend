@@ -6,10 +6,12 @@ import RevenueChart from '../components/Charts/RevenueChart';
 import DailyRevenueChart from '../components/Charts/DailyRevenueChart';
 import CustomerChart from '../components/Charts/CustomerChart';
 import TopServices from '../components/Charts/TopServices';
+import ActivityTimeline from '../components/Charts/ActivityTimeline';
 
 const DashboardHome = () => {
   const { theme } = useOutletContext<{ theme: string }>();
   const isDark = theme === 'theme-dashboard';
+  const role = localStorage.getItem('role') || 'employee';
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -113,6 +115,7 @@ const DashboardHome = () => {
           <RevenueChart isDark={isDark} data={data?.monthlyRevenue || []} isLoading={loading} />
           <CustomerChart isDark={isDark} data={data?.monthlyCustomers || []} isLoading={loading} />
           <TopServices isDark={isDark} data={data?.topServices || []} isLoading={loading} />
+          {role === 'owner' && <ActivityTimeline isDark={isDark} />}
         </div>
       </div>
     </div>
@@ -120,3 +123,6 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
+
+
+

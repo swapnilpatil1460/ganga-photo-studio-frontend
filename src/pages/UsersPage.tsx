@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Trash2, KeyRound, AlertCircle, X, AlertTriangle, Eye, Copy, CheckCircle, Edit } from 'lucide-react';
 
 interface UserData {
   _id: string;
   email: string;
   role: string;
+  isOnline?: boolean;
+  lastActiveAt?: string;
 }
 
 export default function UsersPage() {
+  const { theme } = useOutletContext<{ theme: string }>();
+  const isDark = theme === 'theme-dashboard';
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +141,7 @@ export default function UsersPage() {
     <div className="h-full flex flex-col max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+          <h1 className={`text-3xl font-bold tracking-tight mb-2 flex items-center gap-3 ${isDark ? "text-white" : "text-gray-900"}`}>
             <KeyRound className="text-yellow-500" size={32} />
             System Access Management
           </h1>
@@ -153,18 +158,19 @@ export default function UsersPage() {
         </div>
       )}
 
-      <div className="bg-[#1a1a1a] rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex-1 flex flex-col">
+      <div className={`rounded-2xl border overflow-hidden shadow-2xl flex-1 flex flex-col ${isDark ? "bg-[#1a1a1a] border-gray-800" : "bg-white border-gray-200"}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-800 bg-black/20 text-[var(--theme-text-muted)] text-sm uppercase tracking-wider">
+              <tr className={`border-b text-[var(--theme-text-muted)] text-sm uppercase tracking-wider ${isDark ? "border-gray-800 bg-black/20" : "border-gray-200 bg-gray-50"}`}>
                 <th className="p-4 font-semibold">User Email</th>
+                <th className="p-4 font-semibold">Status</th>
                 <th className="p-4 font-semibold">Password</th>
                 <th className="p-4 font-semibold">System Role</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/50">
+            <tbody className={`divide-y ${isDark ? "divide-gray-800/50" : "divide-gray-200"}`}>
               {users.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="p-8 text-center text-[var(--theme-text-muted)]">
@@ -173,9 +179,17 @@ export default function UsersPage() {
                 </tr>
               ) : (
                 users.map(user => (
-                  <tr key={user._id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={user._id} className={`transition-colors ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50"}`}>
                     <td className="p-4">
-                      <div className="font-medium text-white">{user.email}</div>
+                      <div className={"font-medium ${isDark ? 'text-white' : 'text-gray-900'}"}>{user.email}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <div className={"w-2 h-2 rounded-full ${user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-500'}"} />
+                        <span className={"text-xs font-medium ${user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'text-green-500' : 'text-gray-500'}"}>
+                          {user.isOnline && user.lastActiveAt && new Date().getTime() - new Date(user.lastActiveAt).getTime() < 3 * 60 * 1000 ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
                     </td>
                     <td className="p-4 group">
                       <div className="flex items-center gap-3">
@@ -183,7 +197,7 @@ export default function UsersPage() {
                         <button 
                           onClick={() => setResetConfirmId(user._id)}
                           title="View Password"
-                          className="text-gray-500 hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
+                          className={`text-gray-500 hover:text-yellow-500 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-md ${isDark ? "bg-gray-800" : "bg-gray-100"}`}
                         >
                           <Eye size={16} />
                         </button>
@@ -194,7 +208,7 @@ export default function UsersPage() {
                             setEditPasswordError(null);
                           }}
                           title="Edit Password"
-                          className="text-gray-500 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all bg-gray-800 p-1.5 rounded-md"
+                          className={`text-gray-500 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-md ${isDark ? "bg-gray-800" : "bg-gray-100"}`}
                         >
                           <Edit size={16} />
                         </button>
@@ -235,8 +249,8 @@ export default function UsersPage() {
       {/* Custom Confirmation Modal */}
       {confirmDeleteId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border ${isDark ? "border-gray-800 bg-[#1a1a1a]" : "border-gray-200 bg-white"}`}>
+            <div className={`flex items-center justify-between p-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
               <h2 className="text-lg font-bold text-red-500 flex items-center gap-2">
                 <AlertTriangle size={20} />
                 Confirm Revocation
@@ -256,7 +270,7 @@ export default function UsersPage() {
               </p>
             </div>
             
-            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
+            <div className={`p-4 border-t flex justify-end gap-3 ${isDark ? "border-gray-800 bg-black/20" : "border-gray-200 bg-gray-50"}`}>
               <button 
                 onClick={() => setConfirmDeleteId(null)}
                 className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors"
@@ -285,8 +299,8 @@ export default function UsersPage() {
       {/* Password Reset Confirmation Modal */}
       {resetConfirmId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border ${isDark ? "border-gray-800 bg-[#1a1a1a]" : "border-gray-200 bg-white"}`}>
+            <div className={`flex items-center justify-between p-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
               <h2 className="text-lg font-bold text-yellow-500 flex items-center gap-2">
                 <KeyRound size={20} />
                 View User Password?
@@ -301,7 +315,7 @@ export default function UsersPage() {
                 <strong>Note:</strong> Please do not share this password with anyone except the user.
               </p>
             </div>
-            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
+            <div className={`p-4 border-t flex justify-end gap-3 ${isDark ? "border-gray-800 bg-black/20" : "border-gray-200 bg-gray-50"}`}>
               <button onClick={() => setResetConfirmId(null)} disabled={!!resettingId} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">Cancel</button>
               <button onClick={confirmResetPassword} disabled={!!resettingId} className="px-4 py-2 text-sm font-bold rounded-lg bg-yellow-600 text-white hover:bg-yellow-500 transition-colors flex items-center gap-2">
                 {resettingId ? 'Decrypting...' : 'Yes, View Password'}
@@ -314,8 +328,8 @@ export default function UsersPage() {
       {/* New Credentials Modal */}
       {newCredentials && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border ${isDark ? "border-gray-800 bg-[#1a1a1a]" : "border-gray-200 bg-white"}`}>
+            <div className={`flex items-center justify-between p-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
               <h2 className="text-lg font-bold text-green-500">Decrypted Password</h2>
             </div>
             
@@ -328,14 +342,14 @@ export default function UsersPage() {
                 Here are the user's current login credentials:
               </p>
               
-              <div className="w-full p-4 rounded-lg text-left relative bg-black/50 border border-gray-800">
+              <div className={`w-full p-4 rounded-lg text-left relative border ${isDark ? "bg-black/50 border-gray-800" : "bg-gray-50 border-gray-200"}`}>
                 <div className="mb-2">
                   <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">Email</span>
-                  <span className="font-mono text-sm text-white">{newCredentials.email}</span>
+                  <span className={`font-mono text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{newCredentials.email}</span>
                 </div>
                 <div>
                   <span className="text-xs uppercase tracking-wider font-bold block mb-1 text-gray-500">Password</span>
-                  <span className="font-mono text-sm text-white">{newCredentials.password}</span>
+                  <span className={`font-mono text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{newCredentials.password}</span>
                 </div>
                 
                 <button 
@@ -351,7 +365,7 @@ export default function UsersPage() {
               </div>
             </div>
             
-            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-2">
+            <div className={`p-4 border-t flex justify-end gap-2 ${isDark ? "border-gray-800 bg-black/20" : "border-gray-200 bg-gray-50"}`}>
               <button 
                 onClick={() => setNewCredentials(null)}
                 className="px-4 py-2 text-black text-sm font-semibold rounded-lg bg-yellow-500 hover:bg-yellow-400"
@@ -366,8 +380,8 @@ export default function UsersPage() {
       {/* Edit Password Modal */}
       {editPasswordUserId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border border-gray-800 bg-[#1a1a1a]">
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border ${isDark ? "border-gray-800 bg-[#1a1a1a]" : "border-gray-200 bg-white"}`}>
+            <div className={`flex items-center justify-between p-4 border-b ${isDark ? "border-gray-800" : "border-gray-200"}`}>
               <h2 className="text-lg font-bold text-blue-500 flex items-center gap-2">
                 <Edit size={20} />
                 Edit Password
@@ -389,14 +403,14 @@ export default function UsersPage() {
                   value={newPasswordInput}
                   onChange={(e) => setNewPasswordInput(e.target.value)}
                   placeholder="Enter new password"
-                  className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors ${isDark ? "bg-black/50 border-gray-700 text-white" : "bg-white border-gray-300 text-gray-900"}`}
                 />
               </div>
               <p className="text-xs text-[var(--theme-text-muted)]">
                 Password must be at least 6 characters long. The user will be able to log in with this new password immediately.
               </p>
             </div>
-            <div className="p-4 border-t border-gray-800 bg-black/20 flex justify-end gap-3">
+            <div className={`p-4 border-t flex justify-end gap-3 ${isDark ? "border-gray-800 bg-black/20" : "border-gray-200 bg-gray-50"}`}>
               <button onClick={() => setEditPasswordUserId(null)} disabled={isSubmittingPassword} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors">Cancel</button>
               <button onClick={submitNewPassword} disabled={isSubmittingPassword} className="px-4 py-2 text-sm font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors flex items-center gap-2">
                 {isSubmittingPassword ? 'Saving...' : 'Save Password'}
@@ -408,4 +422,8 @@ export default function UsersPage() {
     </div>
   );
 }
+
+
+
+
 

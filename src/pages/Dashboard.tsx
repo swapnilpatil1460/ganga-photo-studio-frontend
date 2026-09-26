@@ -281,6 +281,21 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  useEffect(() => {
+    const pingServer = async () => {
+      try {
+        await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/ping', { method: 'POST', credentials: 'include' });
+      } catch (e) {
+        console.error('Ping failed:', e);
+      }
+    };
+    
+    // Ping immediately on mount, then every 60 seconds
+    pingServer();
+    const intervalId = setInterval(pingServer, 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Close panels on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
