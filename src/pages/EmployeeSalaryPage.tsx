@@ -53,7 +53,7 @@ export default function EmployeeSalaryPage() {
       present: attendance.workingDays - abs - pl - ul
     });
   };
-  const [components, setComponents] = useState({ 
+  const [components, setComponents] = useState<any>({ 
     basicSalary: 0, allowances: 0, overtime: 0, incentive: 0, 
     otherEarnings: 0, deductions: 0, advanceRecovery: 0 
   });
@@ -76,7 +76,7 @@ export default function EmployeeSalaryPage() {
         if (empRes.ok) {
           const empData = await empRes.json();
           setEmployee(empData);
-          setComponents(prev => ({
+          setComponents((prev: any) => ({
             ...prev,
             basicSalary: empData.salaryStructure?.basicSalary || 0,
             allowances: empData.salaryStructure?.allowances || 0
@@ -225,11 +225,11 @@ export default function EmployeeSalaryPage() {
               <div className="col-span-2"><h3 className="text-sm font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-2">Earnings</h3></div>
               <div className="form-group">
                 <label>Basic Salary (₹)</label>
-                <input type="number" value={components.basicSalary} onChange={e => setComponents({...components, basicSalary: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
+                <input type="number" value={components.basicSalary} onChange={e => setComponents({...components, basicSalary: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
               <div className="form-group">
                 <label>Other Earnings (₹)</label>
-                <input type="number" value={components.otherEarnings} onChange={e => setComponents({...components, otherEarnings: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
+                <input type="number" value={components.otherEarnings} onChange={e => setComponents({...components, otherEarnings: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
             </div>
 
@@ -237,11 +237,11 @@ export default function EmployeeSalaryPage() {
               <div className="col-span-2"><h3 className="text-sm font-semibold text-[var(--theme-text-muted)] uppercase tracking-wider mb-2">Deductions</h3></div>
               <div className="form-group">
                 <label>Other Deductions (₹)</label>
-                <input type="number" value={components.deductions} onChange={e => setComponents({...components, deductions: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
+                <input type="number" value={components.deductions} onChange={e => setComponents({...components, deductions: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
               <div className="form-group">
                 <label>Advance Recovery (₹)</label>
-                <input type="number" value={components.advanceRecovery} onChange={e => setComponents({...components, advanceRecovery: Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
+                <input type="number" value={components.advanceRecovery} onChange={e => setComponents({...components, advanceRecovery: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly} className="form-input" />
               </div>
             </div>
 
@@ -321,15 +321,15 @@ export default function EmployeeSalaryPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-[var(--theme-text-muted)]">Working Days</span>
-                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.workingDays} onChange={e => setAttendance({...attendance, workingDays: Number(e.target.value)})} disabled={isReadOnly}/>
+                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.workingDays} onChange={e => setAttendance({...attendance, workingDays: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly}/>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-[var(--theme-text-muted)]">Present</span>
-                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.present} onChange={e => setAttendance({...attendance, present: Number(e.target.value)})} disabled={isReadOnly}/>
+                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.present} onChange={e => setAttendance({...attendance, present: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly}/>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-[var(--theme-text-muted)] text-red-400">Absent</span>
-                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.absent} onChange={e => setAttendance({...attendance, absent: Number(e.target.value)})} disabled={isReadOnly}/>
+                <input type="number" className="form-input w-20 text-right p-1 h-8" value={attendance.absent} onChange={e => setAttendance({...attendance, absent: e.target.value === '' ? '' : Number(e.target.value)})} disabled={isReadOnly}/>
               </div>
             </div>
             {!isReadOnly && (!currentRecord || currentRecord.status === 'Draft') && (
