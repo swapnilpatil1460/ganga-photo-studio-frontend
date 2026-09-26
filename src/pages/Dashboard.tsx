@@ -180,75 +180,6 @@ const MessagesPanel = ({ onClose }: { onClose: () => void }) => (
   </div>
 );
 
-// ── Search Dropdown ──────────────────────────────────────────────────────────
-const SearchDropdown = ({ query, onClose }: { query: string; onClose: () => void }) => {
-  const [results, setResults] = useState<{ orders: any[]; customers: any[] }>({ orders: [], customers: [] });
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (query.length < 2) { setResults({ orders: [], customers: [] }); return; }
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const [oRes, cRes] = await Promise.all([
-          fetch(`${API_BASE}/orders?search=${encodeURIComponent(query)}&limit=4`, {
-      credentials: 'include', headers: authHeaders() }),
-          fetch(`${API_BASE}/customers?name=${encodeURIComponent(query)}&limit=4`, {
-      credentials: 'include', headers: authHeaders() })
-        ]);
-        const oData = await oRes.json();
-        const cData = await cRes.json();
-        setResults({ orders: oData.data || [], customers: cData.data || [] });
-      } catch {
-        setResults({ orders: [], customers: [] });
-      } finally {
-        setLoading(false);
-      }
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  if (query.length < 2) return null;
-
-  const hasResults = results.orders.length > 0 || results.customers.length > 0;
-
-  return (
-    <div className="search-dropdown">
-      {loading && <div className="search-loading">Searching...</div>}
-      {!loading && !hasResults && <div className="search-empty">No results for "{query}"</div>}
-      {results.orders.length > 0 && (
-        <>
-          <div className="search-section-label">Orders</div>
-          {results.orders.map((o: any) => (
-            <div key={o._id} className="search-result-item" onClick={() => { navigate('/dashboard/orders'); onClose(); }}>
-              <ShoppingCart size={13} />
-              <div>
-                <p className="sr-title">{o.orderId}</p>
-                <p className="sr-sub">{o.service} &bull; {o.status}</p>
-              </div>
-            </div>
-          ))}
-        </>
-      )}
-      {results.customers.length > 0 && (
-        <>
-          <div className="search-section-label">Customers</div>
-          {results.customers.map((c: any) => (
-            <div key={c._id} className="search-result-item" onClick={() => { navigate('/dashboard/customers'); onClose(); }}>
-              <Users size={13} />
-              <div>
-                <p className="sr-title">{c.name}</p>
-                <p className="sr-sub">{c.phone}</p>
-              </div>
-            </div>
-          ))}
-        </>
-      )}
-    </div>
-  );
-};
-
 // ── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -257,9 +188,6 @@ const Dashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const role = localStorage.getItem('role') || 'employee';
   const theme = isDark ? 'theme-dashboard' : 'theme-light';
@@ -296,15 +224,9 @@ const Dashboard = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Close panels on outside click
+  // Close panels on outside click (panels close themselves via backdrop logic)
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (searchRef.current && !searchRef.current.contains(target)) setShowSearch(false);
-      // Panels close themselves via their own backdrop logic / click handlers
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    // Other global click handlers could go here if needed
   }, []);
 
   const closeAllPanels = () => {
@@ -366,20 +288,6 @@ const Dashboard = () => {
             <button className="md:hidden icon-btn" onClick={e => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}>
               <Menu size={24} />
             </button>
-            <div className="topnav-search hidden sm:flex relative" ref={searchRef}>
-              <Search size={18} className="icon-search" />
-              <input
-                type="text"
-                placeholder="Search orders, customers..."
-                className="input-search"
-                value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); setShowSearch(true); }}
-                onFocus={() => setShowSearch(true)}
-              />
-              {showSearch && searchQuery.length >= 2 && (
-                <SearchDropdown query={searchQuery} onClose={() => { setShowSearch(false); setSearchQuery(''); }} />
-              )}
-            </div>
           </div>
 
           {/* Right: Action buttons */}

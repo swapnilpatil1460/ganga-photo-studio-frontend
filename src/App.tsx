@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useOutletContext } from 'react-router-dom';
 
@@ -18,6 +18,8 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage'));
 const OrderDetails = lazy(() => import('./pages/OrderDetails'));
 const EmployeesPage = lazy(() => import('./pages/EmployeesPage'));
 const EmployeeDetails = lazy(() => import('./pages/EmployeeDetails'));
+const SalaryPage = lazy(() => import('./pages/SalaryPage'));
+const EmployeeSalaryPage = lazy(() => import('./pages/EmployeeSalaryPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const BackupPage = lazy(() => import('./pages/BackupPage'));
@@ -79,6 +81,8 @@ function App() {
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="employees" element={<EmployeesPage />} />
                 <Route path="employees/:id" element={<EmployeeDetails />} />
+                <Route path="salary" element={<SalaryPage />} />
+                <Route path="salary/employee/:id" element={<EmployeeSalaryPage />} />
                 <Route path="users" element={<UsersPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>

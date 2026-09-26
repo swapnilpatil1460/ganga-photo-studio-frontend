@@ -92,32 +92,37 @@ const EmployeesPage = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Employee Management</h1>
-        <button 
-          onClick={handleAdd}
-          className="btn-primary flex items-center gap-2"
-        >
-          <UserPlus size={20} />
-          Add Employee
-        </button>
+      <div className="page-header flex-col items-start gap-4">
+        <div className="w-full">
+          <h1 className="page-title mb-6">Employee Management</h1>
+          <div className="flex gap-8 border-b border-gray-800/50 w-full">
+            <button className="pb-3 border-b-2 font-medium flex items-center gap-2" style={{ borderColor: 'var(--theme-accent)', color: 'var(--theme-accent)' }}>
+              <Users size={18} /> Employees
+            </button>
+            <button 
+              onClick={() => navigate('/dashboard/salary')} 
+              className="pb-3 border-b-2 border-transparent font-medium transition-colors flex items-center gap-2"
+              style={{ color: 'var(--theme-text-muted)' }}
+            >
+              <IndianRupee size={18} /> Salary Management
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="table-controls flex-col md:flex-row flex justify-between items-center mb-6">
-        <div className="flex gap-4 flex-1 w-full md:w-auto">
+      <div className="table-controls flex justify-end items-center mb-6 mt-4">
+        <div className="flex gap-3">
+          <button className="btn-outline flex items-center gap-2" onClick={() => { setSearch(''); fetchEmployees(); }}>
+            <RefreshCw size={18} /> Refresh
+          </button>
           <button 
-            onClick={() => navigate('/dashboard/salary')} 
-            className="btn-outline flex items-center gap-2"
-            style={{ borderColor: 'var(--theme-accent)', color: 'var(--theme-accent)' }}
+            onClick={handleAdd}
+            className="btn-primary flex items-center gap-2"
           >
-            <IndianRupee size={18} />
-            Salary Management
+            <UserPlus size={20} />
+            Add Employee
           </button>
         </div>
-        
-        <button className="btn-outline flex items-center gap-2 mt-4 md:mt-0" onClick={() => { setSearch(''); fetchEmployees(); }}>
-          <RefreshCw size={18} /> Refresh
-        </button>
       </div>
 
       <div className="table-container">
