@@ -67,12 +67,10 @@ function App() {
               <Route path="orders" element={<OrdersPage />} />
               <Route path="orders/:id" element={<OrderDetails />} />
               <Route path="schedule" element={<SchedulePage />} />
-              <Route path="users" element={<UsersPage />} />
               <Route path="customers" element={<Customers />} />
               <Route path="customers/new" element={<CustomerForm />} />
               <Route path="customers/:id" element={<CustomerDetails />} />
               <Route path="customers/:id/edit" element={<CustomerForm />} />
-              <Route path="backup" element={<BackupPage />} />
               
               {/* Restricted Owner Routes */}
               <Route element={<OwnerLayout />}>
@@ -84,6 +82,7 @@ function App() {
                 <Route path="salary" element={<SalaryPage />} />
                 <Route path="salary/employee/:id" element={<EmployeeSalaryPage />} />
                 <Route path="users" element={<UsersPage />} />
+                <Route path="backup" element={<BackupPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
               <Route path="invoices/:orderId" element={<InvoicePage />} />

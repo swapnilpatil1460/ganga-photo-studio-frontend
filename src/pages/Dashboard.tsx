@@ -8,8 +8,13 @@ import {
 } from 'lucide-react';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '') + '/api';
-const authHeaders = () => ({
-  'Content-Type': 'application/json',});
+const authHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
 
 // ── SidebarItem ──────────────────────────────────────────────────────────────
 const SidebarItem = ({ icon, label, path, onClick }: { icon: React.ReactNode; label: string; path: string; onClick?: () => void }) => {
@@ -206,7 +211,14 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/logout', { method: 'POST', credentials: 'include' });
+      const token = localStorage.getItem('token');
+      await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
     } catch (e) {
       console.error('Logout failed:', e);
     }
@@ -218,7 +230,14 @@ const Dashboard = () => {
   useEffect(() => {
     const pingServer = async () => {
       try {
-        await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/ping', { method: 'POST', credentials: 'include' });
+        const token = localStorage.getItem('token');
+        await fetch((import.meta.env.VITE_API_URL || '') + '/api/auth/ping', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          }
+        });
       } catch (e) {
         console.error('Ping failed:', e);
       }
@@ -282,7 +301,9 @@ const Dashboard = () => {
             </>
           )}
 
-          <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" onClick={handleNavClick} />
+          {role === 'owner' && (
+            <SidebarItem icon={<Database size={20} />} label="Backup" path="/dashboard/backup" onClick={handleNavClick} />
+          )}
 
           {role === 'owner' && (
             <SidebarItem icon={<Settings size={20} />} label="Settings" path="/dashboard/settings" onClick={handleNavClick} />

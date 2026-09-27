@@ -21,10 +21,16 @@ const DashboardHome = () => {
     setLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders/analytics', {
         credentials: 'include',
-        headers: {}
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
       });
+      if (res.status === 401) {
+        throw new Error('Session expired or unauthorized');
+      }
       if (!res.ok) throw new Error('Failed to load dashboard data');
       const json = await res.json();
       setData(json);

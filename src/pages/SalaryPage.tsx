@@ -3,9 +3,13 @@ import { Search, IndianRupee, Loader, AlertCircle, ChevronDown, CalendarDays, Ex
 import { useNavigate } from 'react-router-dom';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '') + '/api';
-const authHeaders = () => ({
-  'Content-Type': 'application/json',
-});
+const authHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
 
 interface SalaryRecord {
   _id: string;

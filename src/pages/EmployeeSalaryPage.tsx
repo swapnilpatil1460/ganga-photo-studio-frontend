@@ -3,7 +3,13 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, User, IndianRupee, Clock, CheckCircle, AlertCircle, Save, Calendar } from 'lucide-react';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '') + '/api';
-const authHeaders = () => ({ 'Content-Type': 'application/json' });
+const authHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
 
 export default function EmployeeSalaryPage() {
   const { id } = useParams();
