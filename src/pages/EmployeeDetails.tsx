@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, CheckCircle, Activity, Briefcase, Calendar, Phone, Mail, User, Key, X, Copy } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Activity, Briefcase, Calendar, Phone, Mail, User, Key, X, Copy, Trash2, RefreshCw } from 'lucide-react';
 
 interface Employee {
   _id: string;
@@ -64,17 +64,21 @@ export default function EmployeeDetails() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   
+  const role = localStorage.getItem('role');
+  const [viewConfirm, setViewConfirm] = useState(false);
+  const [viewing, setViewing] = useState(false);
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [newCredentials, setNewCredentials] = useState<{email: string, password: string} | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleResetPassword = async () => {
-    setResetting(true);
+  const handleViewPassword = async () => {
+    setViewing(true);
     try {
-
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/password`, {
-      credentials: 'include',
+        credentials: 'include',
         method: 'GET',
         headers: {}
       });
@@ -88,8 +92,55 @@ export default function EmployeeDetails() {
       console.error(err);
       alert('An error occurred.');
     } finally {
+      setViewing(false);
+      setViewConfirm(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setResetting(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}/reset-password`, {
+        credentials: 'include',
+        method: 'POST',
+        headers: {}
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNewCredentials(data.credentials);
+      } else {
+        alert(data.message || 'Failed to reset password.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred.');
+    } finally {
       setResetting(false);
       setResetConfirm(false);
+    }
+  };
+
+  const handleDeleteEmployee = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees/${id}`, {
+        credentials: 'include',
+        method: 'DELETE',
+        headers: {}
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Employee deleted successfully.');
+        navigate('/dashboard/employees');
+      } else {
+        alert(data.message || 'Failed to delete employee.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred.');
+    } finally {
+      setDeleting(false);
+      setDeleteConfirm(false);
     }
   };
 
@@ -173,12 +224,28 @@ export default function EmployeeDetails() {
             </div>
           </div>
           
-          <button 
-            onClick={() => setResetConfirm(true)}
-            className="btn-outline flex items-center gap-2 border-yellow-500 text-yellow-600 hover:bg-yellow-50 shrink-0"
-          >
-            <Key size={18} /> View Password
-          </button>
+          {role === 'owner' && (
+            <div className="flex items-center gap-2 shrink-0">
+              <button 
+                onClick={() => setViewConfirm(true)}
+                className="btn-outline flex items-center gap-2 border-yellow-500 text-yellow-600 hover:bg-yellow-50 shrink-0"
+              >
+                <Key size={18} /> View Password
+              </button>
+              <button 
+                onClick={() => setResetConfirm(true)}
+                className="btn-outline flex items-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 shrink-0"
+              >
+                <RefreshCw size={18} /> Reset Password
+              </button>
+              <button 
+                onClick={() => setDeleteConfirm(true)}
+                className="btn-outline flex items-center gap-2 border-red-500 text-red-600 hover:bg-red-50 shrink-0"
+              >
+                <Trash2 size={18} /> Delete Employee
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -294,18 +361,54 @@ export default function EmployeeDetails() {
 
       </div>
 
-      {/* Reset Confirm Modal */}
-      {resetConfirm && (
+      {/* View Password Confirm Modal */}
+      {viewConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border p-6" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-border)' }}>
             <h3 className="text-lg font-bold text-yellow-500 mb-2">View Password?</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
-              You are about to view <strong>{employee.name}</strong>'s current password.
+              You are about to view <strong>{employee.name}</strong>'s current decrypted password.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setViewConfirm(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-text)' }}>Cancel</button>
+              <button onClick={handleViewPassword} disabled={viewing} className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-semibold hover:bg-yellow-600 disabled:opacity-50">
+                {viewing ? 'Decrypting...' : 'Yes, View Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Confirm Modal */}
+      {resetConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border p-6" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-border)' }}>
+            <h3 className="text-lg font-bold text-blue-500 mb-2">Reset Password?</h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
+              This will generate a brand new random secure password for <strong>{employee.name}</strong> and immediately revoke any active sessions.
             </p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setResetConfirm(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-text)' }}>Cancel</button>
-              <button onClick={handleResetPassword} disabled={resetting} className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-semibold hover:bg-yellow-600 disabled:opacity-50">
-                {resetting ? 'Decrypting...' : 'Yes, View Password'}
+              <button onClick={handleResetPassword} disabled={resetting} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
+                {resetting ? 'Resetting...' : 'Yes, Reset Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Employee Confirm Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border p-6" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-border)' }}>
+            <h3 className="text-lg font-bold text-red-500 mb-2">Delete Employee?</h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--theme-text-muted)' }}>
+              Are you sure you want to delete <strong>{employee.name}</strong>? This will permanently remove their employee record and login account. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setDeleteConfirm(false)} className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50" style={{ borderColor: 'var(--theme-border)', color: 'var(--theme-text)' }}>Cancel</button>
+              <button onClick={handleDeleteEmployee} disabled={deleting} className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-50">
+                {deleting ? 'Deleting...' : 'Yes, Delete Employee'}
               </button>
             </div>
           </div>
