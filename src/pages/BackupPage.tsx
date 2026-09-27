@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Download, Calendar, Users, AlertTriangle, ShieldCheck, RefreshCw, CheckCircle, HardDrive, Lock, RotateCcw, Clock, Trash2 } from 'lucide-react';
+import { 
+  Database, Download, Calendar, Users, AlertTriangle, ShieldCheck, RefreshCw, 
+  CheckCircle, HardDrive, Lock, RotateCcw, Clock, Trash2, ExternalLink, 
+  Cloud, UploadCloud, Settings, Info, Save, Copy, Check 
+} from 'lucide-react';
 
 interface BackupRecord {
   _id: string;
   filename: string;
   sizeBytes: number;
   status: 'success' | 'failed';
+  driveFileId?: string;
+  driveUploadStatus?: 'uploaded' | 'failed' | 'skipped';
+  errorMessage?: string;
   triggeredBy: 'scheduled' | 'manual';
   performedBy: string;
   createdAt: string;
@@ -15,7 +22,14 @@ interface BackupSettings {
   enabled: boolean;
   frequency: 'daily' | 'weekly';
   backupTime: string;
+  weekDay: number;
   retention: number;
+  folderName: string;
+  googleDriveLink?: string;
+  googleDriveFolderId?: string;
+  driveConnected: boolean;
+  connectedEmail?: string;
+  oauthConfigured?: boolean;
   lastBackupAt?: string;
   lastBackupStatus?: 'success' | 'failed';
 }
@@ -31,6 +45,21 @@ const BackupPage = () => {
   const [creatingBackup, setCreatingBackup] = useState(false);
   const [restoringId, setRestoringId] = useState<string | null>(null);
 
+  // Settings Form state
+  const [settingsForm, setSettingsForm] = useState({
+    enabled: true,
+    frequency: 'weekly' as 'weekly' | 'daily',
+    weekDay: 0,
+    backupTime: '02:00',
+    retention: 7,
+    googleDriveLink: ''
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSavedMsg, setSettingsSavedMsg] = useState(false);
+  const [showOAuthGuide, setShowOAuthGuide] = useState(false);
+  const [connectingDrive, setConnectingDrive] = useState(false);
+  const [copiedRedirectUri, setCopiedRedirectUri] = useState(false);
+
   // CSV export state
   const [customerDateRange, setCustomerDateRange] = useState({
     start: new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0],
@@ -44,6 +73,18 @@ const BackupPage = () => {
     }
   }, [role]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('google_connected') === 'true') {
+      alert('✅ Google Drive connected successfully! Scheduled backups will now automatically upload directly to your Google Drive folder.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      fetchBackupData();
+    } else if (params.get('google_error')) {
+      alert('❌ Google Drive authorization error: ' + params.get('google_error'));
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const fetchBackupData = async () => {
     setLoadingBackups(true);
     try {
@@ -55,12 +96,83 @@ const BackupPage = () => {
         setBackupRecords(await historyRes.json());
       }
       if (settingsRes.ok) {
-        setBackupSettings(await settingsRes.json());
+        const s: BackupSettings = await settingsRes.json();
+        setBackupSettings(s);
+        setSettingsForm({
+          enabled: s.enabled ?? true,
+          frequency: s.frequency || 'weekly',
+          weekDay: s.weekDay ?? 0,
+          backupTime: s.backupTime || '02:00',
+          retention: s.retention || 7,
+          googleDriveLink: s.googleDriveLink || ''
+        });
       }
     } catch (err) {
       console.error('Error fetching backup data:', err);
     } finally {
       setLoadingBackups(false);
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    setSettingsSavedMsg(false);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/backup/settings`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBackupSettings(data.settings);
+        setSettingsSavedMsg(true);
+        setTimeout(() => setSettingsSavedMsg(false), 5000);
+      } else {
+        alert(data.message || 'Failed to update backup settings');
+      }
+    } catch (err: any) {
+      alert('Error updating backup settings: ' + err.message);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const handleConnectDrive = async () => {
+    setConnectingDrive(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/backup/auth/url`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setShowOAuthGuide(true);
+      }
+    } catch (err) {
+      setShowOAuthGuide(true);
+    } finally {
+      setConnectingDrive(false);
+    }
+  };
+
+  const handleDisconnectDrive = async () => {
+    if (!window.confirm('Are you sure you want to disconnect Google Drive? Backups will continue running on schedule and be safely archived locally.')) {
+      return;
+    }
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/backup/disconnect-drive`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        fetchBackupData();
+      }
+    } catch (err: any) {
+      alert('Error disconnecting Google Drive: ' + err.message);
     }
   };
 
@@ -86,7 +198,7 @@ const BackupPage = () => {
     }
   };
 
-  const handleDownloadBackup = (id: string, filename: string) => {
+  const handleDownloadBackup = (id: string, _filename: string) => {
     window.open(`${import.meta.env.VITE_API_URL || ''}/api/backup/download/${id}`, '_blank');
   };
 
@@ -117,7 +229,7 @@ const BackupPage = () => {
   };
 
   const handleDeleteRecord = async (id: string) => {
-    if (!window.confirm('Delete this backup archive permanently?')) return;
+    if (!window.confirm('Are you sure you want to permanently delete this backup record and its archive?')) return;
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/backup/history/${id}`, {
         method: 'DELETE',
@@ -125,6 +237,8 @@ const BackupPage = () => {
       });
       if (res.ok) {
         setBackupRecords(prev => prev.filter(r => r._id !== id));
+      } else {
+        alert('Failed to delete backup record');
       }
     } catch (err) {
       console.error(err);
@@ -132,157 +246,139 @@ const BackupPage = () => {
   };
 
   const formatBytes = (bytes: number) => {
-    if (!bytes || bytes === 0) return '0 B';
+    if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // CSV Helpers
   const downloadCSV = (content: string, filename: string) => {
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
     link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleBackupCustomers = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/orders?startDate=${customerDateRange.start}&endDate=${customerDateRange.end}T23:59:59.999Z&limit=10000`, {
         credentials: 'include'
       });
-      if (!res.ok) throw new Error('Failed to fetch data');
-      const result = await res.json();
-      const orders = result.data || result;
+      if (!res.ok) throw new Error('Failed to fetch orders');
+      const data = await res.json();
       
-      if (orders.length === 0) {
-        alert('No records found for this date range.');
-        setLoading(false);
-        return;
-      }
+      const orders = data.data || [];
+      const headers = ['Order ID', 'Customer Name', 'Mobile Number', 'Email', 'Event Type', 'Total Amount', 'Advance Paid', 'Balance Due', 'Status', 'Event Date', 'Created Date'];
+      
+      const rows = orders.map((o: any) => [
+        o.orderId || o._id,
+        `"${o.customerName || ''}"`,
+        o.customerMobile || '',
+        o.customerEmail || '',
+        `"${o.eventType || ''}"`,
+        o.totalAmount || 0,
+        o.advanceAmount || 0,
+        (o.totalAmount || 0) - (o.advanceAmount || 0),
+        o.status || '',
+        o.eventDate ? new Date(o.eventDate).toLocaleDateString() : '',
+        new Date(o.createdAt).toLocaleDateString()
+      ]);
 
-      const headers = [
-        'Order ID', 'Customer ID', 'Customer Name', 'Phone', 
-        'Service', 'Status', 'Total Amount', 'Paid Amount', 'Unpaid Balance',
-        'Order Date', 'Expected Delivery'
-      ];
-
-      const rows = orders.map((o: any) => {
-        const cId = typeof o.customer === 'object' ? (o.customer?.customerId || 'N/A') : 'N/A';
-        const cName = typeof o.customer === 'object' ? (o.customer?.name || 'Walk-in') : 'Walk-in';
-        const phone = typeof o.customer === 'object' ? (o.customer?.phone || 'N/A') : 'N/A';
-        const total = o.totalAmount || 0;
-        const paid = o.paidAmount || 0;
-        const unpaid = total - paid;
-        
-        return [
-          o.orderId,
-          cId,
-          `"${cName}"`,
-          phone,
-          o.service,
-          o.status,
-          total,
-          paid,
-          unpaid,
-          new Date(o.createdAt).toLocaleDateString(),
-          new Date(o.expectedDeliveryDate).toLocaleDateString()
-        ];
-      });
-
-      const csvContent = [headers.join(','), ...rows.map((row: any[]) => row.join(','))].join('\n');
-      downloadCSV(csvContent, `Customer_Order_Backup_${customerDateRange.start}_to_${customerDateRange.end}.csv`);
+      const csvContent = [headers.join(','), ...rows.map((e: any[]) => e.join(','))].join('\n');
+      downloadCSV(csvContent, `ganga_customers_orders_${customerDateRange.start}_to_${customerDateRange.end}.csv`);
     } catch (err) {
       console.error(err);
-      alert('Error generating backup.');
+      alert('Error exporting customer records');
     } finally {
       setLoading(false);
     }
   };
 
   const handleBackupEmployees = async () => {
-    if (role !== 'owner') {
-      alert('Only owners can export employee data.');
-      return;
-    }
-    
-    setLoading(true);
     try {
+      setLoading(true);
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/employees?limit=10000`, {
         credentials: 'include'
       });
       if (!res.ok) throw new Error('Failed to fetch employees');
-      const result = await res.json();
-      const employees = result.data || result;
+      const data = await res.json();
       
-      const headers = ['Employee ID', 'Name', 'Phone', 'Email', 'Role', 'Status', 'Date Joined'];
+      const employees = data.data || [];
+      const headers = ['Employee ID', 'Name', 'Email', 'Mobile', 'Designation', 'Status', 'Joining Date', 'Address'];
+      
       const rows = employees.map((e: any) => [
-        e._id,
-        `"${e.name}"`,
-        e.phone,
-        e.email,
-        e.role,
-        e.status,
-        new Date(e.dateJoined).toLocaleDateString()
+        e.employeeId || e._id,
+        `"${e.name || ''}"`,
+        e.email || '',
+        e.phone || e.mobile || '',
+        `"${e.role || e.designation || ''}"`,
+        e.status || '',
+        e.joiningDate ? new Date(e.joiningDate).toLocaleDateString() : '',
+        `"${(e.address || '').replace(/"/g, '""')}"`
       ]);
 
-      const csvContent = [headers.join(','), ...rows.map((row: any[]) => row.join(','))].join('\n');
-      downloadCSV(csvContent, `Employee_Directory_Backup_${new Date().toISOString().split('T')[0]}.csv`);
+      const csvContent = [headers.join(','), ...rows.map((r: any[]) => r.join(','))].join('\n');
+      downloadCSV(csvContent, `ganga_employees_roster_${new Date().toISOString().split('T')[0]}.csv`);
     } catch (err) {
       console.error(err);
-      alert('Error generating employee backup.');
+      alert('Error exporting employee records');
     } finally {
       setLoading(false);
     }
   };
 
   const handleBackupSchedule = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/schedule`, {
         credentials: 'include'
       });
       if (!res.ok) throw new Error('Failed to fetch schedule');
-      const events = await res.json();
+      const data = await res.json();
       
-      const headers = ['Event Title', 'Event Type', 'Date', 'Start Time', 'End Time', 'Location', 'Customer Name', 'Customer Phone', 'Assigned Staff', 'Notes'];
-      const rows = events.map((e: any) => [
-        `"${e.title}"`,
-        e.type,
-        new Date(e.date).toLocaleDateString(),
-        e.startTime,
-        e.endTime,
-        `"${e.location || 'N/A'}"`,
-        `"${e.customerName || 'N/A'}"`,
-        e.customerNumber || 'N/A',
-        `"${e.assignedTo || 'Unassigned'}"`,
-        `"${(e.notes || '').replace(/"/g, '""')}"`
+      const events = data.data || [];
+      const headers = ['Event ID', 'Title', 'Date', 'Time', 'Location', 'Assigned Photographer', 'Assigned Cinematographer', 'Status', 'Notes'];
+      
+      const rows = events.map((ev: any) => [
+        ev._id,
+        `"${ev.title || ''}"`,
+        ev.date ? new Date(ev.date).toLocaleDateString() : '',
+        `"${ev.time || ''}"`,
+        `"${(ev.location || '').replace(/"/g, '""')}"`,
+        `"${ev.assignedPhotographer || ''}"`,
+        `"${ev.assignedCinematographer || ''}"`,
+        ev.status || '',
+        `"${(ev.notes || '').replace(/"/g, '""')}"`
       ]);
 
-      const csvContent = [headers.join(','), ...rows.map((row: any[]) => row.join(','))].join('\n');
-      downloadCSV(csvContent, `Shoot_Schedule_Backup_${new Date().toISOString().split('T')[0]}.csv`);
+      const csvContent = [headers.join(','), ...rows.map((r: any[]) => r.join(','))].join('\n');
+      downloadCSV(csvContent, `ganga_shoot_schedule_${new Date().toISOString().split('T')[0]}.csv`);
     } catch (err) {
       console.error(err);
-      alert('Error generating schedule backup.');
+      alert('Error exporting schedule');
     } finally {
       setLoading(false);
     }
   };
 
+  const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
   return (
-    <div className="page-container max-w-7xl mx-auto h-full overflow-y-auto custom-scrollbar pb-12 pr-2">
+    <div className="p-6 md:p-8 space-y-8 animate-fadeIn">
+      {/* Header */}
       <div className="page-header flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="page-title mb-1 flex items-center gap-2">
             <HardDrive className="text-yellow-500" size={28} /> System Backup & Recovery
           </h1>
-          <p className="text-[var(--theme-text-muted)] text-sm">Automated AES-256-GCM encrypted database snapshots and CSV exports.</p>
+          <p className="text-[var(--theme-text-muted)] text-sm">Automated AES-256-GCM encrypted database snapshots, Google Drive sync, and CSV exports.</p>
         </div>
 
         {/* Tab Switcher */}
@@ -290,7 +386,7 @@ const BackupPage = () => {
           {role === 'owner' && (
             <button
               onClick={() => setActiveTab('encrypted')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 activeTab === 'encrypted'
                   ? 'bg-yellow-500 text-black shadow-sm'
                   : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]'
@@ -301,7 +397,7 @@ const BackupPage = () => {
           )}
           <button
             onClick={() => setActiveTab('csv')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
               activeTab === 'csv'
                 ? 'bg-yellow-500 text-black shadow-sm'
                 : 'text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]'
@@ -315,7 +411,7 @@ const BackupPage = () => {
       {/* TAB 1: Encrypted Backups */}
       {activeTab === 'encrypted' && role === 'owner' && (
         <div className="space-y-6">
-          {/* Security Banner & Controls */}
+          {/* Security Banner & Quick Actions */}
           <div className="p-6 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-main)] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-green-500 font-semibold text-sm">
@@ -323,14 +419,14 @@ const BackupPage = () => {
                 <span>AES-256-GCM Military-Grade Encryption Active</span>
               </div>
               <p className="text-sm text-[var(--theme-text-muted)] max-w-xl">
-                Database backups are securely exported, gzip-compressed, and encrypted with authenticated AES-256-GCM. Backups can be downloaded for offline safe storage or restored with one click.
+                Database backups are securely exported, gzip-compressed, and encrypted with authenticated AES-256-GCM. Backups can be synced to Google Drive, downloaded offline, or restored with one click.
               </p>
               <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-[var(--theme-text-muted)]">
-                <span>Retention: <strong>{backupSettings?.retention || 7} days</strong></span>
+                <span>Schedule: <strong>{backupSettings?.enabled ? `${backupSettings?.frequency === 'weekly' ? `Weekly (${weekdayNames[backupSettings?.weekDay ?? 0]})` : 'Daily'} at ${backupSettings?.backupTime || '02:00'}` : 'Manual Only'}</strong></span>
                 <span>•</span>
-                <span>Auto-Backup: <strong>{backupSettings?.enabled ? 'Active (Daily 02:00)' : 'Manual Only'}</strong></span>
+                <span>Retention: <strong>{backupSettings?.retention === -1 ? 'Keep All' : `${backupSettings?.retention || 7} days`}</strong></span>
                 <span>•</span>
-                <span>Total Archives: <strong>{backupRecords.length}</strong></span>
+                <span>Google Drive: <strong>{backupSettings?.driveConnected ? `Connected (${backupSettings?.connectedEmail})` : 'Pending OAuth Setup'}</strong></span>
               </div>
             </div>
 
@@ -338,7 +434,7 @@ const BackupPage = () => {
               <button
                 onClick={fetchBackupData}
                 disabled={loadingBackups}
-                className="p-3 border border-[var(--theme-border)] text-[var(--theme-text)] hover:bg-[var(--theme-bg-alt)] rounded-xl transition-all"
+                className="p-3 border border-[var(--theme-border)] text-[var(--theme-text)] hover:bg-[var(--theme-bg-alt)] rounded-xl transition-all cursor-pointer"
                 title="Refresh Backups"
               >
                 <RefreshCw size={18} className={loadingBackups ? 'animate-spin' : ''} />
@@ -346,7 +442,7 @@ const BackupPage = () => {
               <button
                 onClick={handleTriggerBackup}
                 disabled={creatingBackup}
-                className="flex items-center gap-2 px-5 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-xl shadow-md transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
               >
                 {creatingBackup ? (
                   <>
@@ -359,6 +455,274 @@ const BackupPage = () => {
                 )}
               </button>
             </div>
+          </div>
+
+          {/* Automated Weekly Schedule & Google Drive Destination Card */}
+          <div className="p-6 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-main)] shadow-sm space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--theme-border)] pb-4">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-[var(--theme-text)] flex items-center gap-2">
+                  <Cloud className="text-yellow-500" size={20} />
+                  Automated Weekly Cloud Backup & Google Drive Destination
+                </h3>
+                <p className="text-xs text-[var(--theme-text-muted)]">
+                  Save your Google Drive folder link for automated updates. Backups run weekly on your chosen day and time.
+                </p>
+              </div>
+
+              {/* Drive Connection Status Pill */}
+              <div className="flex items-center gap-2">
+                {backupSettings?.driveConnected ? (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-500 border border-green-500/20">
+                    <CheckCircle size={14} />
+                    <span>Drive Connected: {backupSettings.connectedEmail || 'Active'}</span>
+                    <button
+                      type="button"
+                      onClick={handleDisconnectDrive}
+                      className="ml-2 text-red-400 hover:text-red-300 underline font-normal cursor-pointer"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    <AlertTriangle size={14} />
+                    <span>Google OAuth Setup Pending</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {settingsSavedMsg && (
+              <div className="p-3 bg-green-500/10 border border-green-500/30 text-green-500 rounded-xl text-sm flex items-center gap-2">
+                <CheckCircle size={16} />
+                <span>Backup schedule and Google Drive folder settings saved successfully! The background scheduler has been refreshed.</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveSettings} className="space-y-5">
+              {/* Google Drive Link Input */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--theme-text)]">
+                    Google Drive Folder Link / ID
+                  </label>
+                  {backupSettings?.googleDriveFolderId && (
+                    <a
+                      href={`https://drive.google.com/drive/folders/${backupSettings.googleDriveFolderId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-yellow-500 hover:underline flex items-center gap-1 font-medium"
+                    >
+                      Open Google Drive Folder <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settingsForm.googleDriveLink}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, googleDriveLink: e.target.value })}
+                    placeholder="https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--theme-text-muted)] pt-1">
+                  <span>Paste any Google Drive folder URL or Folder ID. The system automatically detects and extracts the folder ID.</span>
+                  {backupSettings?.googleDriveFolderId && (
+                    <span className="font-mono bg-[var(--theme-bg-alt)] px-2 py-0.5 rounded border border-[var(--theme-border)] text-yellow-500">
+                      Detected ID: {backupSettings.googleDriveFolderId}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Schedule Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
+                {/* Auto Backup Enabled */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-[var(--theme-text-muted)]">
+                    Automatic Backups
+                  </label>
+                  <select
+                    value={settingsForm.enabled ? 'true' : 'false'}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, enabled: e.target.value === 'true' })}
+                    className="w-full px-3 py-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                  >
+                    <option value="true">Enabled (Active)</option>
+                    <option value="false">Disabled (Manual Only)</option>
+                  </select>
+                </div>
+
+                {/* Frequency */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-[var(--theme-text-muted)]">
+                    Frequency
+                  </label>
+                  <select
+                    value={settingsForm.frequency}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, frequency: e.target.value as 'weekly' | 'daily' })}
+                    className="w-full px-3 py-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                  >
+                    <option value="weekly">Weekly (Recommended)</option>
+                    <option value="daily">Daily</option>
+                  </select>
+                </div>
+
+                {/* Day of Week (if Weekly) */}
+                {settingsForm.frequency === 'weekly' && (
+                  <div className="space-y-1">
+                    <label className="block text-xs font-semibold text-[var(--theme-text-muted)]">
+                      Backup Day
+                    </label>
+                    <select
+                      value={settingsForm.weekDay}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, weekDay: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                    >
+                      <option value={0}>Every Sunday</option>
+                      <option value={1}>Every Monday</option>
+                      <option value={2}>Every Tuesday</option>
+                      <option value={3}>Every Wednesday</option>
+                      <option value={4}>Every Thursday</option>
+                      <option value={5}>Every Friday</option>
+                      <option value={6}>Every Saturday</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Time */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-[var(--theme-text-muted)]">
+                    Backup Time (IST)
+                  </label>
+                  <input
+                    type="time"
+                    value={settingsForm.backupTime}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, backupTime: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                  />
+                </div>
+
+                {/* Retention */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-[var(--theme-text-muted)]">
+                    Retention
+                  </label>
+                  <select
+                    value={settingsForm.retention}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, retention: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-alt,rgba(0,0,0,0.1))] text-[var(--theme-text)] text-sm focus:outline-none focus:border-yellow-500"
+                  >
+                    <option value={7}>Keep last 7 backups</option>
+                    <option value={14}>Keep last 14 backups</option>
+                    <option value={30}>Keep last 30 backups</option>
+                    <option value={-1}>Keep all archives</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[var(--theme-border)]">
+                <button
+                  type="submit"
+                  disabled={savingSettings}
+                  className="px-5 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-xl text-sm shadow transition-all disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                >
+                  {savingSettings ? <RefreshCw size={15} className="animate-spin" /> : <Save size={15} />}
+                  <span>Save Schedule & Drive Settings</span>
+                </button>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  {!backupSettings?.driveConnected && (
+                    <button
+                      type="button"
+                      onClick={handleConnectDrive}
+                      disabled={connectingDrive}
+                      className="px-4 py-2.5 border border-yellow-500/50 hover:bg-yellow-500/10 text-yellow-500 font-semibold rounded-xl text-sm transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <UploadCloud size={16} />
+                      <span>{connectingDrive ? 'Connecting...' : 'Connect Google Drive Account'}</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOAuthGuide(!showOAuthGuide)}
+                    className="px-3 py-2 text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] flex items-center gap-1.5 cursor-pointer underline"
+                  >
+                    <Info size={14} />
+                    <span>{showOAuthGuide ? 'Hide Cloud Console Guide' : 'How to set up Google OAuth credentials later'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Collapsible Google Cloud Console Setup Instructions */}
+            {showOAuthGuide && (
+              <div className="p-5 rounded-xl border border-yellow-500/30 bg-yellow-500/5 space-y-4 text-sm animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-yellow-500 flex items-center gap-2 text-sm">
+                    <Settings size={16} /> Google Cloud Console OAuth 2.0 Credentials Setup Guide
+                  </h4>
+                  <button
+                    onClick={() => setShowOAuthGuide(false)}
+                    className="text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+                <p className="text-xs text-[var(--theme-text-muted)]">
+                  When you are ready to set up your Google Cloud OAuth authorization credentials, follow these simple steps:
+                </p>
+                <ol className="list-decimal list-inside space-y-2 text-xs text-[var(--theme-text)] pl-1">
+                  <li>
+                    Visit the <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" className="text-yellow-500 underline font-semibold">Google Cloud Console (Credentials)</a> and create or select your project.
+                  </li>
+                  <li>
+                    Navigate to <strong>APIs & Services &gt; Library</strong>, search for <strong>Google Drive API</strong>, and click <strong>Enable</strong>.
+                  </li>
+                  <li>
+                    Go to <strong>APIs & Services &gt; Credentials</strong>, click <strong>Create Credentials &gt; OAuth client ID</strong>.
+                    <div className="ml-5 mt-1 text-[var(--theme-text-muted)]">
+                      • Application type: <strong>Web application</strong><br />
+                      • Name: <strong>Ganga Photo Studio ERP Backup</strong>
+                    </div>
+                  </li>
+                  <li>
+                    Under <strong>Authorized redirect URIs</strong>, add this exact callback URL:
+                    <div className="flex flex-wrap items-center gap-2 mt-1.5 ml-5">
+                      <code className="px-3 py-1.5 rounded-lg bg-[var(--theme-bg-alt)] border border-[var(--theme-border)] text-yellow-500 font-mono text-xs select-all">
+                        {typeof window !== 'undefined' ? `${(import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '')}/api/backup/auth/callback` : 'https://ganga-photo-studio-backend.onrender.com/api/backup/auth/callback'}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const uri = `${(import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '')}/api/backup/auth/callback`;
+                          navigator.clipboard.writeText(uri);
+                          setCopiedRedirectUri(true);
+                          setTimeout(() => setCopiedRedirectUri(false), 3000);
+                        }}
+                        className="px-2.5 py-1 text-xs border border-[var(--theme-border)] rounded-md hover:bg-white/10 flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedRedirectUri ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                        <span>{copiedRedirectUri ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    </div>
+                  </li>
+                  <li>
+                    Copy your <strong>Client ID</strong> and <strong>Client Secret</strong>, and add them to your environment variables (e.g. in your Render Dashboard under Environment):
+                    <div className="ml-5 mt-1 font-mono text-[11px] text-[var(--theme-text-muted)] bg-[var(--theme-bg-alt)] p-2 rounded border border-[var(--theme-border)]">
+                      GOOGLE_CLIENT_ID = your-google-client-id.apps.googleusercontent.com<br />
+                      GOOGLE_CLIENT_SECRET = your-google-client-secret
+                    </div>
+                  </li>
+                  <li>
+                    After saving the credentials in Render, return to this page and click <strong>"Connect Google Drive Account"</strong>. Once connected, your weekly backups will automatically stream directly into your specified Google Drive folder!
+                  </li>
+                </ol>
+              </div>
+            )}
           </div>
 
           {/* Backup Archives Table */}
@@ -390,6 +754,7 @@ const BackupPage = () => {
                       <th className="py-3 px-4">Created Date</th>
                       <th className="py-3 px-4">Size</th>
                       <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Google Drive</th>
                       <th className="py-3 px-4">Triggered By</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
@@ -417,6 +782,21 @@ const BackupPage = () => {
                             {rec.status}
                           </span>
                         </td>
+                        <td className="py-3 px-4">
+                          {rec.driveUploadStatus === 'uploaded' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-500 border border-green-500/20">
+                              <UploadCloud size={12} /> Uploaded to Drive
+                            </span>
+                          ) : rec.driveUploadStatus === 'failed' ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-500 border border-red-500/20" title={rec.errorMessage}>
+                              <AlertTriangle size={12} /> Upload Failed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-500/10 text-gray-400 border border-gray-500/20">
+                              <HardDrive size={12} /> Stored on Server
+                            </span>
+                          )}
+                        </td>
                         <td className="py-3 px-4 text-[var(--theme-text-muted)]">
                           {rec.performedBy || rec.triggeredBy}
                         </td>
@@ -424,7 +804,7 @@ const BackupPage = () => {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleDownloadBackup(rec._id, rec.filename)}
-                              className="p-1.5 border border-[var(--theme-border)] hover:bg-yellow-500/10 text-[var(--theme-text)] hover:text-yellow-500 rounded-lg transition-colors"
+                              className="p-1.5 border border-[var(--theme-border)] hover:bg-yellow-500/10 text-[var(--theme-text)] hover:text-yellow-500 rounded-lg transition-colors cursor-pointer"
                               title="Download Encrypted File"
                             >
                               <Download size={15} />
@@ -432,14 +812,14 @@ const BackupPage = () => {
                             <button
                               onClick={() => handleRestoreBackup(rec._id, rec.filename)}
                               disabled={restoringId === rec._id}
-                              className="p-1.5 border border-blue-500/30 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50"
+                              className="p-1.5 border border-blue-500/30 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                               title="Restore Database from Snapshot"
                             >
                               <RotateCcw size={15} className={restoringId === rec._id ? 'animate-spin' : ''} />
                             </button>
                             <button
                               onClick={() => handleDeleteRecord(rec._id)}
-                              className="p-1.5 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                              className="p-1.5 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
                               title="Delete Archive"
                             >
                               <Trash2 size={15} />
