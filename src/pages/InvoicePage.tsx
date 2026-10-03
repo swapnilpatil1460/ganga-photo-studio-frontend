@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+import DOMPurify from 'dompurify';
 
 interface Order {
   _id: string;
@@ -12,6 +13,7 @@ interface Order {
   totalAmount: number;
   createdAt: string;
   status: string;
+  notes?: string;
   paidAmount?: number;
   customer?: {
     name: string;
@@ -179,8 +181,8 @@ const InvoicePage = () => {
             <tr>
               <td style={{ width: '50%', borderRight: '1px solid #d1d5db', padding: '12px', verticalAlign: 'top' }}>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '8px', color: '#000' }}>Bill to:</div>
-                <div style={{ marginBottom: '4px', color: '#000' }}>Name: <span style={{ fontWeight: 'bold' }}>{order.customer?.name || 'Unknown'}</span></div>
-                <div style={{ marginBottom: '4px', color: '#374151' }}>Address: {order.customer?.address || 'N/A'}</div>
+                <div style={{ marginBottom: '4px', color: '#000' }}>Name: <span style={{ fontWeight: 'bold' }}><span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(order.customer?.name || 'Unknown') }} /></span></div>
+                <div style={{ marginBottom: '4px', color: '#374151' }}>Address: <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(order.customer?.address || 'N/A') }} /></div>
                 <div style={{ marginBottom: '4px', color: '#374151' }}>Contact: {order.customer?.phone || 'N/A'}</div>
                 <div style={{ color: '#374151' }}>GST Number: -</div>
               </td>
@@ -216,7 +218,7 @@ const InvoicePage = () => {
           <tbody>
             <tr>
               <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', textAlign: 'center', color: '#000' }}>1</td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', color: '#000' }}>{order.service}</td>
+              <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', color: '#000' }}><span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(order.service || '') }} /></td>
               <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', textAlign: 'center', color: '#000' }}>{order.quantity}</td>
               <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', borderRight: '1px solid #d1d5db', textAlign: 'center', color: '#000' }}>{order.price}</td>
               <td style={{ padding: '8px', borderBottom: '1px solid #d1d5db', textAlign: 'center', color: '#000' }}>{order.quantity * order.price}</td>
@@ -257,6 +259,15 @@ const InvoicePage = () => {
             </tr>
           </tbody>
         </table>
+
+        
+        {/* Notes Section */}
+        {order.notes && (
+          <div style={{ marginTop: '2rem', padding: '12px', border: '1px solid #d1d5db', backgroundColor: '#f9fafb' }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Notes:</div>
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(order.notes) }}></div>
+          </div>
+        )}
 
         {/* Spacer */}
         <div style={{ height: '32px' }}></div>

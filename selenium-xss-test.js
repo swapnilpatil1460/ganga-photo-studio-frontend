@@ -53,7 +53,7 @@ async function runXssTest() {
     // 5. Trigger the PDF Export (html2pdf.js interaction)
     await driver.findElement(By.css('button.export-pdf')).click();
     
-    // 6. ASSERTION: Check if the payload executed
+    // 6. ASSERTION: Check if the payload executed or was safely rendered
     // If the document title changed to 'XSS_VULNERABLE' or an alert popped up, we have DOM-based XSS.
     
     try {
@@ -62,12 +62,18 @@ async function runXssTest() {
       console.error('❌ FAIL: DOM-Based XSS Vulnerability confirmed! Alert fired with text:', alertText);
       await alert.accept();
     } catch (e) {
-      // No alert found - good!
+      // No alert found - check title
       const title = await driver.getTitle();
       if (title === 'XSS_VULNERABLE') {
         console.error('❌ FAIL: DOM-Based XSS Vulnerability confirmed! document.title was modified.');
       } else {
-        console.log('✅ PASS: XSS payload did not execute. Input is properly sanitized.');
+        // Now let's explicitly verify DOMPurify stripped the payload from the DOM
+        const invoiceContent = await driver.findElement(By.id('invoice-content')).getAttribute('innerHTML');
+        if (invoiceContent.includes('onerror="document.title=')) {
+          console.error('❌ FAIL: Raw payload found in DOM (not purified).');
+        } else {
+          console.log('✅ PASS: XSS payload did not execute and was successfully purified by DOMPurify.');
+        }
       }
     }
     
