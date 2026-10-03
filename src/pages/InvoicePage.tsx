@@ -111,7 +111,7 @@ const InvoicePage = () => {
       jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as 'portrait' }
     };
 
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => { performance.mark('pdf-export-end'); performance.measure('pdf-export-block', 'pdf-export-start', 'pdf-export-end'); (window as any).__PDF_EXPORT_PERF__ = { done: true, duration: performance.getEntriesByName('pdf-export-block').at(-1)?.duration }; });
   };
 
   return (

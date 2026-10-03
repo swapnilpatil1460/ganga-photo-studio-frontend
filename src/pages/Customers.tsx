@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, Eye, RefreshCw, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,8 @@ const Customers = () => {
   const [search, setSearch] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Pagination
   const [page, setPage] = useState(1);
@@ -71,12 +73,13 @@ const Customers = () => {
     return () => clearTimeout(timer);
   }, [search, dateFilter, page]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${id}`, {
-      credentials: 'include',
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/customers/${deleteTarget._id}`, {
+        credentials: 'include',
         method: 'DELETE',
         headers: {}
       });
@@ -85,6 +88,9 @@ const Customers = () => {
       }
     } catch (err) {
       console.error('Delete failed', err);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -172,7 +178,7 @@ const Customers = () => {
                         <button className="action-btn edit" title="Edit" onClick={() => navigate(`/dashboard/customers/${customer._id}/edit`)}>
                           <Edit2 size={18} />
                         </button>
-                        <button className="action-btn delete" title="Delete" onClick={() => handleDelete(customer._id)}>
+                        <button className="action-btn delete" title="Delete" onClick={(e) => { e.stopPropagation(); setDeleteTarget(customer); }}>
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -214,6 +220,53 @@ const Customers = () => {
           </>
         )}
       </div>
+
+      {/* Custom Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col bg-white border border-gray-200">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Trash2 className="text-red-500" size={24} />
+                Delete Customer
+              </h2>
+              <button 
+                onClick={() => setDeleteTarget(null)}
+                className="p-1 hover:bg-gray-200 rounded-full transition-colors text-gray-400"
+              >
+                <span className="sr-only">Close</span>
+                &times;
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-gray-700 text-base">
+                Are you sure you want to delete <span className="font-semibold text-gray-900">{deleteTarget.name}</span>?
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                This action cannot be undone. All data associated with this customer will be removed.
+              </p>
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
+              <button 
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center gap-2"
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Customer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
